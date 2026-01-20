@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Chaesa Kitchen - Premium Homemade</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-primary: #78350f;
+            --brand-secondary: #b45309;
+        }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
+            background-color: #f3f4f6;
+        }
+        
+        .safe-area-top { padding-top: env(safe-area-inset-top); }
+        .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+        .meat-gradient { 
+            background: linear-gradient(135deg, #78350f 0%, #b45309 100%); 
+            position: relative;
+        }
+
+        /* Kitchen Pattern Overlay - Rapat & Padat */
+        .kitchen-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.12;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        /* Additional icon floating ornamen */
+        .ornament-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 10px;
+            opacity: 0.15;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        [v-cloak] { display: none; }
+        
+        .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
+        .active-scale:active { transform: scale(0.96); transition: transform 0.1s; }
+        
+        .sheet-enter-active, .sheet-leave-active { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sheet-enter-from, .sheet-leave-to { transform: translateY(100%); }
+
+        .tab-active {
+            background: var(--brand-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(120, 53, 15, 0.2);
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2378350f'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1rem;
+            padding-right: 1.5rem;
+        }
+
+        @keyframes subtle-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .float-icon { animation: subtle-float 4s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+<div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white relative flex flex-col shadow-2xl">
+    
+    <!-- Header with Rich Pattern -->
+    <header class="meat-gradient px-6 pt-12 pb-8 rounded-b-[2.5rem] overflow-hidden shrink-0">
+        <!-- Pattern Layer -->
+        <div class="kitchen-pattern"></div>
+        
+        <!-- Rich Icon Ornaments -->
+        <div class="ornament-layer">
+            <i class="fas fa-cookie float-icon text-white text-xl" style="animation-delay: 0s"></i>
+            <i class="fas fa-utensils float-icon text-white text-lg" style="animation-delay: 1s"></i>
+            <i class="fas fa-bread-slice float-icon text-white text-xl" style="animation-delay: 2s"></i>
+            <i class="fas fa-blender float-icon text-white text-lg" style="animation-delay: 3s"></i>
+            <i class="fas fa-mortar-pestle float-icon text-white text-xl" style="animation-delay: 0.5s"></i>
+            <i class="fas fa-wheat-awn float-icon text-white text-lg" style="animation-delay: 1.5s"></i>
+            <i class="fas fa-egg float-icon text-white text-xl" style="animation-delay: 2.5s"></i>
+            <i class="fas fa-bowl-food float-icon text-white text-lg" style="animation-delay: 3.5s"></i>
+        </div>
+
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+        
+        <div class="flex justify-between items-start relative z-10">
+            <!-- Logo & Brand Info -->
+            <div class="flex items-center gap-3">
+                <!-- Frame Logo Bulat Sesuai Logo -->
+                <div class="w-16 h-16 bg-white rounded-full p-0.5 shadow-xl border border-white/20 overflow-hidden flex items-center justify-center">
+                    <img src="chaesa new logo new logo-01.jpg" alt="Chaesa Kitchen Logo" class="w-full h-full object-cover rounded-full" onerror="this.src='https://ui-avatars.com/api/?name=CK&background=fff&color=78350f'">
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight text-white leading-none">Chaesa Kitchen</h1>
+                    <p class="text-orange-200/80 text-[10px] uppercase font-bold tracking-[0.2em] mt-1">Premium Homemade Food</p>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button @click="chatAdmin" class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md active-scale border border-white/10">
+                    <i class="fab fa-whatsapp text-lg text-green-300"></i>
+                </button>
+                <button @click="toggleAdmin" class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md active-scale border border-white/10">
+                    <i class="fas" :class="isLoggedIn ? 'fa-unlock text-orange-200' : 'fa-lock text-white'"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Promo Box -->
+        <div class="mt-6 min-h-[60px] flex flex-col justify-center transition-all">
+            <div class="bg-black/20 backdrop-blur-md p-3 rounded-2xl flex-1 border border-white/10 relative transition-all" 
+                 :class="[!config.showPromo && !isLoggedIn ? 'opacity-0 pointer-events-none' : 'opacity-100', !config.showPromo && isLoggedIn ? 'grayscale-[0.8] opacity-40' : '']">
+                
+                <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-1.5">
+                        <i class="fas fa-tag text-[8px] text-orange-300"></i>
+                        <p class="text-orange-200 text-[8px] font-black uppercase tracking-widest">Promo Hari Ini</p>
+                    </div>
+                    <div v-if="isLoggedIn" class="flex items-center cursor-pointer" @click="config.showPromo = !config.showPromo; saveConfig()">
+                        <span class="text-[7px] font-bold text-white mr-2 uppercase">{{ config.showPromo ? 'On' : 'Off' }}</span>
+                        <div class="relative w-6 h-3 transition duration-200 ease-linear rounded-full bg-white/20">
+                            <div class="absolute left-0 w-3 h-3 transition duration-100 ease-linear transform bg-white rounded-full shadow" :class="config.showPromo ? 'translate-x-3 bg-green-400' : 'translate-x-0 bg-gray-400'"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="!isLoggedIn" class="text-white text-xs font-bold">{{ config.promoText }}</div>
+                <input v-else type="text" v-model="config.promoText" @change="saveConfig" 
+                       class="bg-white/10 text-white text-xs font-bold w-full outline-none border-b border-white/30 py-1"
+                       placeholder="Masukkan teks promo...">
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="sticky top-0 bg-white/95 backdrop-blur-md z-30 px-4 py-4 border-b border-gray-100 shrink-0">
+        <div class="nav-grid">
+            <button v-for="cat in categories" 
+                    @click="activeTab = cat"
+                    :class="activeTab === cat ? 'tab-active' : 'bg-gray-50 text-gray-400'"
+                    class="py-2.5 rounded-xl text-[9px] font-bold uppercase tracking-tighter transition-all active-scale text-center truncate">
+                {{ cat }}
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 px-6 pt-4 pb-32 overflow-y-auto bg-gray-50/50">
+        <!-- Admin Login Panel -->
+        <div v-if="showLogin" class="mb-6 p-6 bg-white rounded-3xl border border-orange-100 shadow-sm">
+            <h3 class="text-xs font-black text-amber-900 uppercase mb-4 text-center">Admin Verification</h3>
+            <input type="password" v-model="passInput" @keyup.enter="login" placeholder="Pin Akses" 
+                   class="w-full p-4 rounded-2xl bg-gray-50 border-none text-center font-bold tracking-widest outline-none focus:ring-2 focus:ring-amber-800">
+            <button @click="login" class="w-full mt-3 bg-amber-900 text-white py-4 rounded-2xl font-bold text-xs uppercase active-scale">Akses Sekarang</button>
+        </div>
+
+        <!-- Product List -->
+        <div class="space-y-4">
+            <div v-for="(item, index) in filteredProducts" :key="index" 
+                 class="bg-white p-4 rounded-3xl border border-gray-100 card-shadow flex items-center gap-4 transition-all"
+                 :class="{'opacity-60': item.stock <= 0 && !isLoggedIn}">
+                
+                <div :class="getIconBg(item.name)" class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
+                    <i class="fas text-2xl" :class="[getIcon(item.name), getIconColor(item.name)]"></i>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-bold text-gray-800 text-[14px] leading-tight mb-1 truncate">{{ item.name }}</h4>
+                    <div class="flex items-center gap-1.5 mb-1">
+                        <span class="w-1.5 h-1.5 rounded-full" :class="item.stock > 0 ? 'bg-green-500' : 'bg-red-500'"></span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                            {{ item.stock }} {{ item.unit }}
+                        </span>
+                    </div>
+                    
+                    <div v-if="!isLoggedIn" class="text-amber-900 font-extrabold text-lg">
+                        <span class="text-[10px] font-bold mr-0.5 opacity-50">Rp</span>{{ item.price.toLocaleString() }}
+                    </div>
+
+                    <div v-else class="flex gap-2 mt-2">
+                        <input type="number" v-model.number="item.price" @change="save" class="bg-orange-50 w-20 text-[10px] font-bold p-1.5 rounded-lg border-none outline-none">
+                        <input type="number" v-model.number="item.stock" @change="save" class="bg-orange-50 w-14 text-[10px] font-bold p-1.5 rounded-lg border-none outline-none">
+                    </div>
+                </div>
+
+                <!-- Qty Dropdown -->
+                <div v-if="!isLoggedIn" class="shrink-0">
+                    <div v-if="item.stock > 0" class="relative">
+                        <select 
+                            :value="getQty(item.name)"
+                            @change="setQtyFromSelect(item, $event)"
+                            class="custom-select bg-orange-50 text-amber-900 h-10 w-16 pl-3 rounded-xl font-black text-sm active-scale border border-orange-100 outline-none appearance-none"
+                        >
+                            <option value="0">0</option>
+                            <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+                        </select>
+                    </div>
+                    <span v-else class="text-[9px] font-bold text-red-400 px-3 py-2 bg-red-50 rounded-lg uppercase">Habis</span>
+                </div>
+                <button v-else @click="removeProduct(index)" class="text-gray-300 px-2 active-scale"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+
+        <button v-if="isLoggedIn" @click="addProduct" class="w-full mt-6 py-4 border-2 border-dashed border-gray-200 rounded-3xl text-gray-400 font-bold text-xs uppercase active-scale">
+            + Tambah Menu Baru
+        </button>
+    </main>
+
+    <!-- Floating Cart Bar -->
+    <transition name="sheet">
+        <div v-if="cartTotal > 0 && !showCart" 
+             @click="showCart = true"
+             class="fixed bottom-6 left-6 right-6 bg-amber-900 text-white p-2 rounded-full shadow-2xl flex items-center z-40 active-scale cursor-pointer border border-white/10 max-w-[392px] mx-auto">
+            <div class="bg-orange-500 w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="ml-4 flex-1">
+                <p class="text-[9px] font-bold text-orange-200 uppercase tracking-widest leading-none mb-1">{{ cartTotal }} Item Dipilih</p>
+                <p class="text-sm font-black">Rp {{ totalPrice.toLocaleString() }}</p>
+            </div>
+            <div class="bg-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 mr-1">
+                Keranjang <i class="fas fa-arrow-right ml-1"></i>
+            </div>
+        </div>
+    </transition>
+
+    <!-- Checkout Cart Sheet -->
+    <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
+        <div class="absolute inset-0" @click="showCart = false"></div>
+        <div class="bg-white rounded-t-[3rem] max-h-[92vh] flex flex-col relative animate-slide-up max-w-md mx-auto w-full">
+            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-4 mb-2"></div>
+            
+            <div class="p-8 overflow-y-auto no-scrollbar flex-1">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-xl font-black text-gray-800">Review Pesanan</h2>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Detail Pengiriman</p>
+                    </div>
+                    <button @click="showCart = false" class="bg-gray-100 w-10 h-10 rounded-full text-gray-400 active-scale"><i class="fas fa-times"></i></button>
+                </div>
+
+                <!-- Form -->
+                <div class="space-y-3 mb-8">
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                        <label class="text-[8px] font-bold text-gray-400 uppercase block mb-1">Nama Penerima</label>
+                        <input v-model="form.name" type="text" placeholder="Masukkan nama Anda" class="w-full bg-transparent border-none text-sm font-bold outline-none">
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                        <label class="text-[8px] font-bold text-gray-400 uppercase block mb-1">No. WhatsApp</label>
+                        <input v-model="form.phone" type="tel" placeholder="Contoh: 0812..." class="w-full bg-transparent border-none text-sm font-bold outline-none">
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                        <label class="text-[8px] font-bold text-gray-400 uppercase block mb-1">Alamat Lengkap</label>
+                        <textarea v-model="form.address" placeholder="Tuliskan alamat pengantaran..." class="w-full bg-transparent border-none text-sm font-bold outline-none h-20 resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- Cart Items -->
+                <div class="space-y-4 mb-8">
+                    <div v-for="item in cart" :key="item.name" class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-amber-800 shadow-sm">
+                                <i class="fas" :class="getIcon(item.name)"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-bold text-gray-700">{{ item.name }}</h5>
+                                <p class="text-[10px] font-bold text-amber-600">{{ item.qty }}x @ Rp{{ item.price.toLocaleString() }}</p>
+                            </div>
+                        </div>
+                        <p class="text-xs font-black text-gray-800">Rp {{ (item.price * item.qty).toLocaleString() }}</p>
+                    </div>
+                </div>
+
+                <!-- Final Payment -->
+                <div class="border-t border-gray-100 pt-6 safe-area-bottom">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Total Pembayaran</p>
+                            <p class="text-3xl font-black text-amber-900">Rp {{ totalPrice.toLocaleString() }}</p>
+                        </div>
+                    </div>
+                    <button @click="checkout" class="w-full bg-amber-900 text-white py-6 rounded-3xl font-black text-sm active-scale flex items-center justify-center gap-3 shadow-xl">
+                        <i class="fab fa-whatsapp text-xl"></i> PESAN VIA WHATSAPP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            isLoggedIn: false,
+            showLogin: false,
+            showCart: false,
+            passInput: '',
+            activeTab: 'semua',
+            categories: ['semua', 'risol', 'brownies', 'lain lain'],
+            form: { name: '', phone: '', address: '' },
+            cart: [],
+            products: [],
+            config: {
+                promoText: 'Diskon Ongkir 5rb Khusus Hari Ini!',
+                showPromo: true
+            },
+            waNumber: '6285385978915'
+        }
+    },
+    computed: {
+        filteredProducts() {
+            if (this.activeTab === 'semua') return this.products;
+            return this.products.filter(p => p.category === this.activeTab);
+        },
+        cartTotal() { return this.cart.reduce((s, i) => s + i.qty, 0); },
+        totalPrice() { return this.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
+    },
+    methods: {
+        getIcon(name) {
+            const n = name.toLowerCase();
+            if (n.includes('risol')) return 'fa-hotdog';
+            if (n.includes('brownies')) return 'fa-bread-slice';
+            if (n.includes('bawang')) return 'fa-seedling';
+            return 'fa-cookie-bite';
+        },
+        getIconBg(name) {
+            const n = name.toLowerCase();
+            if (n.includes('risol')) return 'bg-orange-50';
+            if (n.includes('brownies')) return 'bg-amber-50';
+            return 'bg-gray-100';
+        },
+        getIconColor(name) {
+            const n = name.toLowerCase();
+            if (n.includes('risol')) return 'text-orange-600';
+            if (n.includes('brownies')) return 'text-amber-800';
+            return 'text-amber-900/40';
+        },
+        toggleAdmin() {
+            if(this.isLoggedIn) this.isLoggedIn = false;
+            else this.showLogin = !this.showLogin;
+        },
+        login() {
+            if(this.passInput === 'admin123') { 
+                this.isLoggedIn = true; 
+                this.showLogin = false; 
+                this.passInput = ''; 
+            } else {
+                alert("Pin Salah!");
+            }
+        },
+        setQtyFromSelect(product, event) {
+            const n = parseInt(event.target.value);
+            const idx = this.cart.findIndex(c => c.name === product.name);
+            
+            if (n === 0) {
+                if (idx !== -1) this.cart.splice(idx, 1);
+            } else {
+                if (idx !== -1) {
+                    this.cart[idx].qty = n;
+                } else {
+                    this.cart.push({ ...product, qty: n });
+                }
+            }
+        },
+        getQty(name) {
+            const item = this.cart.find(c => c.name === name);
+            return item ? item.qty : 0;
+        },
+        addProduct() {
+            const name = prompt("Nama Menu:");
+            const price = parseInt(prompt("Harga:"));
+            const cat = prompt("Kategori (risol/brownies/lain lain):", "risol");
+            if(name && price) {
+                this.products.unshift({ name, price, stock: 10, category: cat || 'lain lain', unit: 'pack' });
+                this.save();
+            }
+        },
+        removeProduct(idx) {
+            if(confirm("Hapus produk ini?")) {
+                this.products.splice(idx, 1);
+                this.save();
+            }
+        },
+        save() { 
+            localStorage.setItem('chaesa_db_v2', JSON.stringify(this.products)); 
+        },
+        saveConfig() {
+            localStorage.setItem('chaesa_config', JSON.stringify(this.config));
+        },
+        chatAdmin() { 
+            window.open(`https://wa.me/${this.waNumber}?text=Halo Chaesa Kitchen...`); 
+        },
+        checkout() {
+            if(!this.form.name || !this.form.address) {
+                alert("Silakan lengkapi nama dan alamat pengiriman.");
+                return;
+            }
+            let text = `*ORDER CHAESA KITCHEN*\n\n👤 *Nama:* ${this.form.name}\n📍 *Alamat:* ${this.form.address}\n📞 *WA:* ${this.form.phone}\n\n*ORDER:*\n`;
+            this.cart.forEach(item => { text += `- ${item.name} (${item.qty}x)\n`; });
+            text += `\n*TOTAL: Rp ${this.totalPrice.toLocaleString()}*`;
+            
+            window.open(`https://wa.me/${this.waNumber}?text=${encodeURIComponent(text)}`);
+            this.cart = []; 
+            this.showCart = false;
+        }
+    },
+    mounted() {
+        const data = localStorage.getItem('chaesa_db_v2');
+        if(data) {
+            this.products = JSON.parse(data);
+        } else {
+            this.products = [
+                { name: "Risol Mayo", price: 3000, stock: 50, category: "risol", unit: "pcs" },
+                { name: "Risol Sayur", price: 3000, stock: 50, category: "risol", unit: "pcs" },
+                { name: "Risol Bihun", price: 3000, stock: 50, category: "risol", unit: "pcs" },
+                { name: "Fudgy Brownies Large", price: 45000, stock: 10, category: "brownies", unit: "box" },
+                { name: "Fudgy Brownies Medium", price: 35000, stock: 10, category: "brownies", unit: "box" },
+                { name: "Fudgy Brownies Small", price: 25000, stock: 10, category: "brownies", unit: "box" },
+                { name: "Bawang Goreng 200 gram", price: 35000, stock: 15, category: "lain lain", unit: "toples" },
+                { name: "Kue Nastar 350 gram", price: 35000, stock: 15, category: "lain lain", unit: "toples" },
+                { name: "Kue Kacang 350 gram", price: 30000, stock: 15, category: "lain lain", unit: "toples" },
+                { name: "Kue Putri Salju 350 gram", price: 35000, stock: 15, category: "lain lain", unit: "toples" },
+                { name: "Keripik Bawang 350 gram", price: 25000, stock: 15, category: "lain lain", unit: "toples" }
+            ];
+            this.save();
+        }
+
+        const conf = localStorage.getItem('chaesa_config');
+        if(conf) {
+            this.config = JSON.parse(conf);
+        }
+    }
+}).mount('#app');
+</script>
+</body>
+</html>
