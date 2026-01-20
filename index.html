@@ -28,7 +28,6 @@
             position: relative;
         }
 
-        /* Kitchen Pattern Overlay - Rapat & Padat */
         .kitchen-pattern {
             position: absolute;
             inset: 0;
@@ -37,7 +36,6 @@
             mask-image: linear-gradient(to bottom, black, transparent);
         }
 
-        /* Additional icon floating ornamen */
         .ornament-layer {
             position: absolute;
             inset: 0;
@@ -85,18 +83,18 @@
             50% { transform: translateY(-5px); }
         }
         .float-icon { animation: subtle-float 4s ease-in-out infinite; }
+
+        /* Mobile specific fixes: prevent iOS auto-zoom on inputs */
+        input, select, textarea { font-size: 16px !important; }
     </style>
 </head>
 <body class="bg-gray-100">
 
 <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white relative flex flex-col shadow-2xl">
     
-    <!-- Header with Rich Pattern -->
-    <header class="meat-gradient px-6 pt-12 pb-8 rounded-b-[2.5rem] overflow-hidden shrink-0">
-        <!-- Pattern Layer -->
+    <!-- Header -->
+    <header class="meat-gradient px-6 pt-12 pb-8 rounded-b-[2.5rem] overflow-hidden shrink-0 safe-area-top">
         <div class="kitchen-pattern"></div>
-        
-        <!-- Rich Icon Ornaments -->
         <div class="ornament-layer">
             <i class="fas fa-cookie float-icon text-white text-xl" style="animation-delay: 0s"></i>
             <i class="fas fa-utensils float-icon text-white text-lg" style="animation-delay: 1s"></i>
@@ -111,11 +109,10 @@
         <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
         
         <div class="flex justify-between items-start relative z-10">
-            <!-- Logo & Brand Info -->
             <div class="flex items-center gap-3">
-                <!-- Frame Logo Bulat Sesuai Logo -->
+                <!-- LOGO DIKEMBALIKAN KE STRUKTUR SEMULA -->
                 <div class="w-16 h-16 bg-white rounded-full p-0.5 shadow-xl border border-white/20 overflow-hidden flex items-center justify-center">
-                    <img src="image/logo.png">
+                    <img src="image/logo.png" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <h1 class="text-2xl font-extrabold tracking-tight text-white leading-none">Chaesa Kitchen</h1>
@@ -172,7 +169,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-1 px-6 pt-4 pb-32 overflow-y-auto bg-gray-50/50">
+    <main class="flex-1 px-4 sm:px-6 pt-4 pb-32 overflow-y-auto bg-gray-50/50">
         <!-- Admin Login Panel -->
         <div v-if="showLogin" class="mb-6 p-6 bg-white rounded-3xl border border-orange-100 shadow-sm">
             <h3 class="text-xs font-black text-amber-900 uppercase mb-4 text-center">Admin Verification</h3>
@@ -187,26 +184,26 @@
                  class="bg-white p-4 rounded-3xl border border-gray-100 card-shadow flex items-center gap-4 transition-all"
                  :class="{'opacity-60': item.stock <= 0 && !isLoggedIn}">
                 
-                <div :class="getIconBg(item.name)" class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
-                    <i class="fas text-2xl" :class="[getIcon(item.name), getIconColor(item.name)]"></i>
+                <div :class="getIconBg(item.name)" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
+                    <i class="fas text-xl sm:text-2xl" :class="[getIcon(item.name), getIconColor(item.name)]"></i>
                 </div>
 
                 <div class="flex-1 min-w-0">
-                    <h4 class="font-bold text-gray-800 text-[14px] leading-tight mb-1 truncate">{{ item.name }}</h4>
+                    <h4 class="font-bold text-gray-800 text-[13px] sm:text-[14px] leading-tight mb-1 truncate">{{ item.name }}</h4>
                     <div class="flex items-center gap-1.5 mb-1">
                         <span class="w-1.5 h-1.5 rounded-full" :class="item.stock > 0 ? 'bg-green-500' : 'bg-red-500'"></span>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-gray-400">
                             {{ item.stock }} {{ item.unit }}
                         </span>
                     </div>
                     
-                    <div v-if="!isLoggedIn" class="text-amber-900 font-extrabold text-lg">
-                        <span class="text-[10px] font-bold mr-0.5 opacity-50">Rp</span>{{ item.price.toLocaleString() }}
+                    <div v-if="!isLoggedIn" class="text-amber-900 font-extrabold text-base sm:text-lg">
+                        <span class="text-[9px] sm:text-[10px] font-bold mr-0.5 opacity-50">Rp</span>{{ item.price.toLocaleString() }}
                     </div>
 
                     <div v-else class="flex gap-2 mt-2">
-                        <input type="number" v-model.number="item.price" @change="save" class="bg-orange-50 w-20 text-[10px] font-bold p-1.5 rounded-lg border-none outline-none">
-                        <input type="number" v-model.number="item.stock" @change="save" class="bg-orange-50 w-14 text-[10px] font-bold p-1.5 rounded-lg border-none outline-none">
+                        <input type="number" v-model.number="item.price" @change="save" class="bg-orange-50 w-16 sm:w-20 text-[9px] sm:text-[10px] font-bold p-1.5 rounded-lg border-none outline-none">
+                        <input type="number" v-model.number="item.stock" @change="save" class="bg-orange-50 w-12 sm:w-14 text-[9px] sm:text-[10px] font-bold p-1.5 rounded-lg border-none outline-none">
                     </div>
                 </div>
 
@@ -216,13 +213,13 @@
                         <select 
                             :value="getQty(item.name)"
                             @change="setQtyFromSelect(item, $event)"
-                            class="custom-select bg-orange-50 text-amber-900 h-10 w-16 pl-3 rounded-xl font-black text-sm active-scale border border-orange-100 outline-none appearance-none"
+                            class="custom-select bg-orange-50 text-amber-900 h-9 sm:h-10 w-14 sm:w-16 pl-2 sm:pl-3 rounded-xl font-black text-xs sm:text-sm active-scale border border-orange-100 outline-none appearance-none"
                         >
                             <option value="0">0</option>
                             <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
                         </select>
                     </div>
-                    <span v-else class="text-[9px] font-bold text-red-400 px-3 py-2 bg-red-50 rounded-lg uppercase">Habis</span>
+                    <span v-else class="text-[8px] sm:text-[9px] font-bold text-red-400 px-2 sm:px-3 py-1.5 sm:py-2 bg-red-50 rounded-lg uppercase">Habis</span>
                 </div>
                 <button v-else @click="removeProduct(index)" class="text-gray-300 px-2 active-scale"><i class="fas fa-trash"></i></button>
             </div>
@@ -237,15 +234,15 @@
     <transition name="sheet">
         <div v-if="cartTotal > 0 && !showCart" 
              @click="showCart = true"
-             class="fixed bottom-6 left-6 right-6 bg-amber-900 text-white p-2 rounded-full shadow-2xl flex items-center z-40 active-scale cursor-pointer border border-white/10 max-w-[392px] mx-auto">
-            <div class="bg-orange-500 w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0">
+             class="fixed bottom-6 left-4 right-4 bg-amber-900 text-white p-2 rounded-2xl shadow-2xl flex items-center z-40 active-scale cursor-pointer border border-white/10 max-w-[392px] mx-auto safe-area-bottom">
+            <div class="bg-orange-500 w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-full flex items-center justify-center text-lg sm:text-xl shrink-0">
                 <i class="fas fa-shopping-cart"></i>
             </div>
-            <div class="ml-4 flex-1">
-                <p class="text-[9px] font-bold text-orange-200 uppercase tracking-widest leading-none mb-1">{{ cartTotal }} Item Dipilih</p>
+            <div class="ml-3 sm:ml-4 flex-1">
+                <p class="text-[8px] sm:text-[9px] font-bold text-orange-200 uppercase tracking-widest leading-none mb-1">{{ cartTotal }} Item Dipilih</p>
                 <p class="text-sm font-black">Rp {{ totalPrice.toLocaleString() }}</p>
             </div>
-            <div class="bg-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 mr-1">
+            <div class="bg-white/10 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest border border-white/10 mr-1">
                 Keranjang <i class="fas fa-arrow-right ml-1"></i>
             </div>
         </div>
@@ -254,60 +251,60 @@
     <!-- Checkout Cart Sheet -->
     <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
         <div class="absolute inset-0" @click="showCart = false"></div>
-        <div class="bg-white rounded-t-[3rem] max-h-[92vh] flex flex-col relative animate-slide-up max-w-md mx-auto w-full">
+        <div class="bg-white rounded-t-[2.5rem] sm:rounded-t-[3rem] max-h-[92vh] flex flex-col relative animate-slide-up max-w-md mx-auto w-full shadow-2xl">
             <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-4 mb-2"></div>
             
-            <div class="p-8 overflow-y-auto no-scrollbar flex-1">
-                <div class="flex justify-between items-center mb-8">
+            <div class="p-6 sm:p-8 overflow-y-auto no-scrollbar flex-1 safe-area-bottom">
+                <div class="flex justify-between items-center mb-6 sm:mb-8">
                     <div>
-                        <h2 class="text-xl font-black text-gray-800">Review Pesanan</h2>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Detail Pengiriman</p>
+                        <h2 class="text-lg sm:text-xl font-black text-gray-800">Review Pesanan</h2>
+                        <p class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Detail Pengiriman</p>
                     </div>
-                    <button @click="showCart = false" class="bg-gray-100 w-10 h-10 rounded-full text-gray-400 active-scale"><i class="fas fa-times"></i></button>
+                    <button @click="showCart = false" class="bg-gray-100 w-8 h-8 sm:w-10 sm:h-10 rounded-full text-gray-400 active-scale flex items-center justify-center"><i class="fas fa-times text-xs"></i></button>
                 </div>
 
                 <!-- Form -->
-                <div class="space-y-3 mb-8">
-                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div class="space-y-3 mb-6 sm:mb-8">
+                    <div class="bg-gray-50 p-3.5 sm:p-4 rounded-2xl border border-gray-100">
                         <label class="text-[8px] font-bold text-gray-400 uppercase block mb-1">Nama Penerima</label>
                         <input v-model="form.name" type="text" placeholder="Masukkan nama Anda" class="w-full bg-transparent border-none text-sm font-bold outline-none">
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <div class="bg-gray-50 p-3.5 sm:p-4 rounded-2xl border border-gray-100">
                         <label class="text-[8px] font-bold text-gray-400 uppercase block mb-1">No. WhatsApp</label>
                         <input v-model="form.phone" type="tel" placeholder="Contoh: 0812..." class="w-full bg-transparent border-none text-sm font-bold outline-none">
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <div class="bg-gray-50 p-3.5 sm:p-4 rounded-2xl border border-gray-100">
                         <label class="text-[8px] font-bold text-gray-400 uppercase block mb-1">Alamat Lengkap</label>
-                        <textarea v-model="form.address" placeholder="Tuliskan alamat pengantaran..." class="w-full bg-transparent border-none text-sm font-bold outline-none h-20 resize-none"></textarea>
+                        <textarea v-model="form.address" placeholder="Tuliskan alamat pengantaran..." class="w-full bg-transparent border-none text-sm font-bold outline-none h-16 sm:h-20 resize-none"></textarea>
                     </div>
                 </div>
 
                 <!-- Cart Items -->
-                <div class="space-y-4 mb-8">
-                    <div v-for="item in cart" :key="item.name" class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-amber-800 shadow-sm">
+                <div class="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+                    <div v-for="item in cart" :key="item.name" class="flex justify-between items-center bg-gray-50 p-3 sm:p-4 rounded-2xl border border-gray-100">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-xl flex items-center justify-center text-amber-800 shadow-sm text-xs sm:text-base">
                                 <i class="fas" :class="getIcon(item.name)"></i>
                             </div>
                             <div>
-                                <h5 class="text-xs font-bold text-gray-700">{{ item.name }}</h5>
-                                <p class="text-[10px] font-bold text-amber-600">{{ item.qty }}x @ Rp{{ item.price.toLocaleString() }}</p>
+                                <h5 class="text-[11px] sm:text-xs font-bold text-gray-700">{{ item.name }}</h5>
+                                <p class="text-[9px] sm:text-[10px] font-bold text-amber-600">{{ item.qty }}x @ Rp{{ item.price.toLocaleString() }}</p>
                             </div>
                         </div>
-                        <p class="text-xs font-black text-gray-800">Rp {{ (item.price * item.qty).toLocaleString() }}</p>
+                        <p class="text-[11px] sm:text-xs font-black text-gray-800">Rp {{ (item.price * item.qty).toLocaleString() }}</p>
                     </div>
                 </div>
 
                 <!-- Final Payment -->
-                <div class="border-t border-gray-100 pt-6 safe-area-bottom">
+                <div class="border-t border-gray-100 pt-6">
                     <div class="flex justify-between items-end mb-6">
                         <div>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Total Pembayaran</p>
-                            <p class="text-3xl font-black text-amber-900">Rp {{ totalPrice.toLocaleString() }}</p>
+                            <p class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase mb-1">Total Pembayaran</p>
+                            <p class="text-2xl sm:text-3xl font-black text-amber-900 leading-none">Rp {{ totalPrice.toLocaleString() }}</p>
                         </div>
                     </div>
-                    <button @click="checkout" class="w-full bg-amber-900 text-white py-6 rounded-3xl font-black text-sm active-scale flex items-center justify-center gap-3 shadow-xl">
-                        <i class="fab fa-whatsapp text-xl"></i> PESAN VIA WHATSAPP
+                    <button @click="checkout" class="w-full bg-amber-900 text-white py-5 rounded-2xl font-black text-xs sm:text-sm active-scale flex items-center justify-center gap-3 shadow-xl">
+                        <i class="fab fa-whatsapp text-lg sm:text-xl"></i> PESAN VIA WHATSAPP
                     </button>
                 </div>
             </div>
