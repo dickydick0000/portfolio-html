@@ -337,6 +337,11 @@ createApp({
                 showPromo: true
             },
             waNumber: '6285385978915'
+            ghToken: 'ghp_MASUKKAN_TOKEN_ANDA_DISINI', 
+            ghOwner: 'USERNAME_GITHUB_ANDA',
+            ghRepo: 'chaesa-data',
+            ghPath: 'data.json'
+    }
         }
     },
     computed: {
@@ -434,7 +439,33 @@ createApp({
             }
         },
         save() {
-            localStorage.setItem('chaesa_db_v2', JSON.stringify(this.products));
+            const url = `https://api.github.com/repos/${this.ghOwner}/${this.ghRepo}/contents/${this.ghPath}`;
+    
+    try {
+        // 1. Ambil 'sha' (ID unik file) agar GitHub tahu kita mau nimpa file yang benar
+        const res = await fetch(url, {
+            headers: { 'Authorization': `token ${this.ghToken}` }
+        });
+        const fileData = await res.json();
+        const sha = fileData.sha;
+        await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${this.ghToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: 'Update stok oleh admin',
+                content: btoa(unescape(encodeURIComponent(JSON.stringify(this.products, null, 2)))), // Encode ke Base64
+                sha: sha
+            })
+        });
+        console.log("Data sinkron ke GitHub!");
+    } catch (e) {
+        console.error("Gagal sinkron:", e);
+    }
+},
+            
         },
         saveConfig() {
             localStorage.setItem('chaesa_config', JSON.stringify(this.config));
@@ -479,8 +510,13 @@ createApp({
         }
     },
     mounted() {
-        const data = localStorage.getItem('chaesa_db_v2');
-        if(data) {
+        const url = `https://api.github.com/repos/${this.ghOwner}/${this.ghRepo}/contents/${this.ghPath}`;
+    
+    try {
+        const res = await fetch(url, {
+            headers: { 'Authorization': `token ${this.ghToken}` }
+        });
+        const data = await res.json();
             this.products = JSON.parse(data);
         } else {
             this.products = [
@@ -497,3 +533,4 @@ createApp({
 </script>
 </body>
 </html>
+
