@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -84,8 +85,10 @@
         }
         .float-icon { animation: subtle-float 4s ease-in-out infinite; }
 
+        /* Prevent auto-zoom on mobile */
         input, select, textarea { font-size: 16px !important; }
 
+        /* Input styling for Admin editing */
         .admin-input {
             background: #fdf2f2;
             border: 1px solid #fed7d7;
@@ -137,17 +140,17 @@
             </div>
         </div>
 
-        <!-- Promo Box (Real-time Updated) -->
+        <!-- Promo Box -->
         <div class="mt-6 min-h-[60px] flex flex-col justify-center transition-all">
             <div class="bg-black/20 backdrop-blur-md p-3 rounded-2xl flex-1 border border-white/10 relative" 
-                 v-if="config.showPromo || isLoggedIn">
+                 :class="[!config.showPromo && !isLoggedIn ? 'opacity-0 pointer-events-none' : 'opacity-100']">
                 
                 <div class="flex justify-between items-center mb-1">
                     <div class="flex items-center gap-1.5">
                         <i class="fas fa-tag text-[8px] text-orange-300"></i>
                         <p class="text-orange-200 text-[8px] font-black uppercase tracking-widest">Promo Hari Ini</p>
                     </div>
-                    <div v-if="isLoggedIn" class="flex items-center cursor-pointer" @click="togglePromoStatus">
+                    <div v-if="isLoggedIn" class="flex items-center cursor-pointer" @click="config.showPromo = !config.showPromo; saveConfig()">
                         <div class="relative w-6 h-3 rounded-full bg-white/20">
                             <div class="absolute left-0 w-3 h-3 transition transform bg-white rounded-full shadow" :class="config.showPromo ? 'translate-x-3 bg-green-400' : 'translate-x-0 bg-gray-400'"></div>
                         </div>
@@ -155,9 +158,8 @@
                 </div>
 
                 <div v-if="!isLoggedIn" class="text-white text-xs font-bold">{{ config.promoText }}</div>
-                <input v-else type="text" v-model="config.promoText" @input="updatePromoText"
-                       placeholder="Ketik promo di sini..."
-                       class="bg-white/10 text-white text-xs font-bold w-full outline-none border-b border-white/30 py-1 placeholder-white/30">
+                <input v-else type="text" v-model="config.promoText" @change="saveConfig" 
+                       class="bg-white/10 text-white text-xs font-bold w-full outline-none border-b border-white/30 py-1">
             </div>
         </div>
     </header>
@@ -176,10 +178,11 @@
 
     <!-- Main Content -->
     <main class="flex-1 px-4 pt-4 pb-32 overflow-y-auto bg-gray-50/50">
+        <!-- Admin Login Panel -->
         <div v-if="showLogin" class="mb-6 p-6 bg-white rounded-3xl border border-orange-100 shadow-sm">
             <h3 class="text-xs font-black text-amber-900 uppercase mb-4 text-center">Admin Verification</h3>
             <input type="password" v-model="passInput" @keyup.enter="login" placeholder="Pin Akses" 
-                    class="w-full p-4 rounded-2xl bg-gray-50 border-none text-center font-bold tracking-widest outline-none focus:ring-2 focus:ring-amber-800">
+                   class="w-full p-4 rounded-2xl bg-gray-50 border-none text-center font-bold tracking-widest outline-none focus:ring-2 focus:ring-amber-800">
             <button @click="login" class="w-full mt-3 bg-amber-900 text-white py-4 rounded-2xl font-bold text-xs uppercase active-scale">Akses Sekarang</button>
         </div>
 
@@ -189,11 +192,14 @@
                  class="bg-white p-4 rounded-3xl border border-gray-100 card-shadow flex items-start gap-4 transition-all"
                  :class="{'opacity-60': item.stock <= 0 && !isLoggedIn}">
                 
+                <!-- Icon Box -->
                 <div :class="getIconBg(item.name)" class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner mt-1">
                     <i class="fas text-xl" :class="[getIcon(item.name), getIconColor(item.name)]"></i>
                 </div>
 
+                <!-- Info Box -->
                 <div class="flex-1 min-w-0">
+                    <!-- VIEW MODE (USER) -->
                     <template v-if="!isLoggedIn">
                         <h4 class="font-bold text-gray-800 text-[14px] leading-tight mb-1 truncate">{{ item.name }}</h4>
                         <div class="flex items-center gap-1.5 mb-1">
@@ -207,6 +213,7 @@
                         </div>
                     </template>
 
+                    <!-- EDIT MODE (ADMIN) -->
                     <template v-else>
                         <div class="space-y-2">
                             <div>
@@ -239,6 +246,7 @@
                     </template>
                 </div>
 
+                <!-- Action Box -->
                 <div class="shrink-0 flex flex-col items-end gap-2">
                     <div v-if="!isLoggedIn">
                         <div v-if="item.stock > 0" class="relative">
@@ -265,7 +273,7 @@
         </button>
     </main>
 
-    <!-- Floating Cart Bar -->
+    <!-- Floating Cart Bar (User) -->
     <transition name="sheet">
         <div v-if="cartTotal > 0 && !showCart && !isLoggedIn" 
              @click="showCart = true"
@@ -283,7 +291,7 @@
         </div>
     </transition>
 
-    <!-- Checkout Sheet -->
+    <!-- Checkout Sheet (User) -->
     <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
         <div class="absolute inset-0" @click="showCart = false"></div>
         <div class="bg-white rounded-t-[3rem] max-h-[92vh] flex flex-col relative animate-slide-up max-w-md mx-auto w-full shadow-2xl">
@@ -312,18 +320,7 @@
     </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-// Safe Config Retrieval
-const firebaseConfig = JSON.parse(__firebase_config);
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'chaesa-kitchen-prod';
-
+<script>
 const { createApp } = Vue;
 
 createApp({
@@ -339,11 +336,10 @@ createApp({
             cart: [],
             products: [],
             config: {
-                promoText: 'Memuat promo...',
+                promoText: 'Diskon Ongkir 5rb Khusus Hari Ini!',
                 showPromo: true
             },
-            waNumber: '6285385978915',
-            user: null
+            waNumber: '6285385978915'
         }
     },
     computed: {
@@ -355,26 +351,6 @@ createApp({
         totalPrice() { return this.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
     },
     methods: {
-        async updatePromoText() {
-            if (!this.user) return;
-            // Rule 1: Fixed path to be even segments (6 segments)
-            const promoRef = doc(db, 'artifacts', appId, 'public', 'data', 'store', 'config');
-            try {
-                await updateDoc(promoRef, { promoText: this.config.promoText });
-            } catch (e) {
-                console.error("Error updating promo:", e);
-            }
-        },
-        async togglePromoStatus() {
-            if (!this.user) return;
-            this.config.showPromo = !this.config.showPromo;
-            const promoRef = doc(db, 'artifacts', appId, 'public', 'data', 'store', 'config');
-            try {
-                await updateDoc(promoRef, { showPromo: this.config.showPromo });
-            } catch (e) {
-                console.error("Error toggling promo status:", e);
-            }
-        },
         getIcon(name) {
             const n = name.toLowerCase();
             if (n.includes('risol')) return 'fa-hotdog';
@@ -403,6 +379,8 @@ createApp({
                 this.isLoggedIn = true; 
                 this.showLogin = false; 
                 this.passInput = ''; 
+            } else {
+                alert("Pin Salah!");
             }
         },
         setQtyFromSelect(product, event) {
@@ -430,17 +408,25 @@ createApp({
             this.save();
         },
         removeProduct(idx) {
-            this.products.splice(idx, 1);
-            this.save();
+            if(confirm("Hapus produk ini?")) {
+                this.products.splice(idx, 1);
+                this.save();
+            }
         },
         save() { 
             localStorage.setItem('chaesa_db_v2', JSON.stringify(this.products)); 
+        },
+        saveConfig() {
+            localStorage.setItem('chaesa_config', JSON.stringify(this.config));
         },
         chatAdmin() { 
             window.open(`https://wa.me/${this.waNumber}?text=Halo Chaesa Kitchen...`); 
         },
         checkout() {
-            if(!this.form.name || !this.form.address) return;
+            if(!this.form.name || !this.form.address) {
+                alert("Lengkapi data!");
+                return;
+            }
             let text = `*ORDER CHAESA KITCHEN*\n\n👤 *Nama:* ${this.form.name}\n📍 *Alamat:* ${this.form.address}\n\n*ORDER:*\n`;
             this.cart.forEach(item => { text += `- ${item.name} (${item.qty}x)\n`; });
             text += `\n*TOTAL: Rp ${this.totalPrice.toLocaleString()}*`;
@@ -449,35 +435,7 @@ createApp({
             this.showCart = false;
         }
     },
-    async mounted() {
-        // Auth Logic (Rule 3)
-        const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-        };
-        await initAuth();
-
-        onAuthStateChanged(auth, (user) => {
-            this.user = user;
-            if (user) {
-                // Rule 1: Adjusted Path to have 6 segments
-                const promoRef = doc(db, 'artifacts', appId, 'public', 'data', 'store', 'config');
-                onSnapshot(promoRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        this.config = docSnap.data();
-                    } else {
-                        setDoc(promoRef, {
-                            promoText: 'Diskon Ongkir 5rb Khusus Hari Ini!',
-                            showPromo: true
-                        });
-                    }
-                }, (error) => console.error("Promo snapshot error:", error));
-            }
-        });
-
+    mounted() {
         const data = localStorage.getItem('chaesa_db_v2');
         if(data) {
             this.products = JSON.parse(data);
@@ -489,8 +447,11 @@ createApp({
             ];
             this.save();
         }
+        const conf = localStorage.getItem('chaesa_config');
+        if(conf) this.config = JSON.parse(conf);
     }
 }).mount('#app');
 </script>
 </body>
 </html>
+
