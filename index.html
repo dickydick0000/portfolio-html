@@ -330,7 +330,6 @@ const { createApp } = Vue;
 createApp({
     data() {
         return {
-            // DATABASE GITHUB CONFIG
             ghToken: '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',
             ghOwner: 'ChaesaKitchen',
             ghRepo: 'chaesa-data',
@@ -345,7 +344,6 @@ createApp({
             categories: ['semua', 'risol', 'brownies', 'lain lain'],
             form: { name: '', phone: '', address: '', note: '' },
             cart: [],
-            // Default Products as requested
             products: [
                 { name: "Risol", price: 2500, stock: 100, category: "risol", unit: "pcs" },
                 { name: "Brownies", price: 35000, stock: 100, category: "brownies", unit: "box" },
@@ -376,14 +374,12 @@ createApp({
                 if (res.ok) {
                     const data = await res.json();
                     const content = JSON.parse(atob(data.content));
-                    // If GitHub has data, use it. Otherwise, use the defaults in data()
                     if (content.products && content.products.length > 0) {
                         this.products = content.products;
                     }
                     this.config = content.config || this.config;
                     this.sha = data.sha;
                 } else {
-                    // Create file with initial data if it doesn't exist
                     await this.pushToGitHub(true);
                 }
             } catch (e) {
@@ -421,26 +417,30 @@ createApp({
             }
         },
 
-        terbilang(nilai) {
-            nilai = Math.abs(nilai);
-            let simpan = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
-            let temp = "";
-            if (nilai < 12) {
-                temp = " " + simpan[nilai];
-            } else if (nilai < 20) {
-                temp = this.terbilang(nilai - 10) + " Belas";
-            } else if (nilai < 100) {
-                temp = this.terbilang(Math.floor(nilai / 10)) + " Puluh" + this.terbilang(nilai % 10);
-            } else if (nilai < 1000) {
-                temp = this.terbilang(Math.floor(nilai / 100)) + " Ratus" + this.terbilang(nilai % 100);
-            } else if (nilai < 2000) {
-                temp = " Seribu" + this.terbilang(nilai - 1000);
-            } else if (nilai < 1000000) {
-                temp = this.terbilang(Math.floor(nilai / 1000)) + " Ribu" + this.terbilang(nilai % 1000);
-            } else if (nilai < 1000000000) {
-                temp = this.terbilang(Math.floor(nilai / 1000000)) + " Juta" + this.terbilang(nilai % 1000000);
+        terbilang(angka) {
+            const bilangan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+            let hasil = "";
+            let n = Math.abs(Math.floor(angka));
+
+            if (n < 12) {
+                hasil = " " + bilangan[n];
+            } else if (n < 20) {
+                hasil = this.terbilang(n - 10) + " belas";
+            } else if (n < 100) {
+                hasil = this.terbilang(Math.floor(n / 10)) + " puluh" + this.terbilang(n % 10);
+            } else if (n < 200) {
+                hasil = " seratus" + this.terbilang(n - 100);
+            } else if (n < 1000) {
+                hasil = this.terbilang(Math.floor(n / 100)) + " ratus" + this.terbilang(n % 100);
+            } else if (n < 2000) {
+                hasil = " seribu" + this.terbilang(n - 1000);
+            } else if (n < 1000000) {
+                hasil = this.terbilang(Math.floor(n / 1000)) + " ribu" + this.terbilang(n % 1000);
+            } else if (n < 1000000000) {
+                hasil = this.terbilang(Math.floor(n / 1000000)) + " juta" + this.terbilang(n % 1000000);
             }
-            return temp;
+            
+            return hasil.trim();
         },
         getIcon(name) {
             const n = name.toLowerCase();
@@ -516,7 +516,6 @@ createApp({
                 return;
             }
 
-            // Update Stok di Database GitHub
             this.cart.forEach(cartItem => {
                 const prod = this.products.find(p => p.name === cartItem.name);
                 if (prod) prod.stock -= cartItem.qty;
@@ -538,7 +537,8 @@ createApp({
                 message += `Subtotal: Rp ${subtotal.toLocaleString()}\n\n`;
             });
 
-            const terbilangStr = this.terbilang(this.totalPrice).trim() + " Rupiah";
+            // Logika Terbilang EYD & Proper Case
+            const terbilangStr = this.terbilang(this.totalPrice) + " rupiah";
             const terbilangFormatted = terbilangStr.charAt(0).toUpperCase() + terbilangStr.slice(1);
 
             message += `------------------------------------------\n`;
