@@ -332,8 +332,8 @@ createApp({
         return {
             // DATABASE GITHUB CONFIG
             ghToken: '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',
-            ghOwner: 'ChaesaKitchen', // Ganti dengan username GitHub Anda
-            ghRepo: 'chaesa-data',     // Ganti dengan nama repository Anda
+            ghOwner: 'ChaesaKitchen',
+            ghRepo: 'chaesa-data',
             ghPath: 'data.json',
             loading: true,
 
@@ -345,7 +345,12 @@ createApp({
             categories: ['semua', 'risol', 'brownies', 'lain lain'],
             form: { name: '', phone: '', address: '', note: '' },
             cart: [],
-            products: [],
+            // Default Products as requested
+            products: [
+                { name: "Risol", price: 2500, stock: 100, category: "risol", unit: "pcs" },
+                { name: "Brownies", price: 35000, stock: 100, category: "brownies", unit: "box" },
+                { name: "Kue Nastar", price: 85000, stock: 100, category: "lain lain", unit: "toples" }
+            ],
             config: {
                 promoText: 'Diskon Ongkir 5rb Khusus Hari Ini!',
                 showPromo: true
@@ -362,7 +367,6 @@ createApp({
         totalPrice() { return this.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
     },
     methods: {
-        // GITHUB SYNC METHODS
         async fetchFromGitHub() {
             this.loading = true;
             try {
@@ -372,12 +376,15 @@ createApp({
                 if (res.ok) {
                     const data = await res.json();
                     const content = JSON.parse(atob(data.content));
-                    this.products = content.products || [];
+                    // If GitHub has data, use it. Otherwise, use the defaults in data()
+                    if (content.products && content.products.length > 0) {
+                        this.products = content.products;
+                    }
                     this.config = content.config || this.config;
                     this.sha = data.sha;
                 } else {
-                    // Create file if not exists
-                    this.pushToGitHub(true);
+                    // Create file with initial data if it doesn't exist
+                    await this.pushToGitHub(true);
                 }
             } catch (e) {
                 console.error("Fetch failed", e);
@@ -424,8 +431,6 @@ createApp({
                 temp = this.terbilang(nilai - 10) + " Belas";
             } else if (nilai < 100) {
                 temp = this.terbilang(Math.floor(nilai / 10)) + " Puluh" + this.terbilang(nilai % 10);
-            } else if (nilai < 200) {
-                temp = " Seratus" + this.terbilang(nilai - 100);
             } else if (nilai < 1000) {
                 temp = this.terbilang(Math.floor(nilai / 100)) + " Ratus" + this.terbilang(nilai % 100);
             } else if (nilai < 2000) {
@@ -442,18 +447,21 @@ createApp({
             if (n.includes('risol')) return 'fa-hotdog';
             if (n.includes('brownies')) return 'fa-bread-slice';
             if (n.includes('bawang')) return 'fa-seedling';
+            if (n.includes('nastar') || n.includes('kue')) return 'fa-cookie';
             return 'fa-cookie-bite';
         },
         getIconBg(name) {
             const n = name.toLowerCase();
             if (n.includes('risol')) return 'bg-orange-50';
             if (n.includes('brownies')) return 'bg-amber-50';
+            if (n.includes('nastar')) return 'bg-yellow-50';
             return 'bg-gray-100';
         },
         getIconColor(name) {
             const n = name.toLowerCase();
             if (n.includes('risol')) return 'text-orange-600';
             if (n.includes('brownies')) return 'text-amber-800';
+            if (n.includes('nastar')) return 'text-yellow-600';
             return 'text-amber-900/40';
         },
         toggleAdmin() {
@@ -530,7 +538,7 @@ createApp({
                 message += `Subtotal: Rp ${subtotal.toLocaleString()}\n\n`;
             });
 
-            const terbilangStr = this.terbilang(this.totalPrice).trim() + " Ribu Rupiah";
+            const terbilangStr = this.terbilang(this.totalPrice).trim() + " Rupiah";
             const terbilangFormatted = terbilangStr.charAt(0).toUpperCase() + terbilangStr.slice(1);
 
             message += `------------------------------------------\n`;
