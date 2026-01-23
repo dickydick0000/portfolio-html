@@ -76,6 +76,7 @@
             background-position: right 0.5rem center;
             background-size: 1rem;
             padding-right: 1.5rem;
+            padding-left: 0.75rem;
         }
 
         @keyframes subtle-float {
@@ -147,7 +148,7 @@
                         <i class="fas fa-tag text-[8px] text-orange-300"></i>
                         <p class="text-orange-200 text-[8px] font-black uppercase tracking-widest">Promo Hari Ini</p>
                     </div>
-                    <div v-if="isLoggedIn" class="flex items-center cursor-pointer" @click="config.showPromo = !config.showPromo; saveConfig()">
+                    <div v-if="isLoggedIn" class="flex items-center cursor-pointer" @click="config.showPromo = !config.showPromo; pushToGitHub()">
                         <div class="relative w-6 h-3 rounded-full bg-white/20">
                             <div class="absolute left-0 w-3 h-3 transition transform bg-white rounded-full shadow" :class="config.showPromo ? 'translate-x-3 bg-green-400' : 'translate-x-0 bg-gray-400'"></div>
                         </div>
@@ -155,8 +156,8 @@
                 </div>
 
                 <div v-if="!isLoggedIn" class="text-white text-xs font-bold">{{ config.promoText }}</div>
-                <input v-else type="text" v-model="config.promoText" @change="saveConfig"
-                       class="bg-white/10 text-white text-xs font-bold w-full outline-none border-b border-white/30 py-1">
+                <input v-else type="text" v-model="config.promoText" @change="pushToGitHub"
+                        class="bg-white/10 text-white text-xs font-bold w-full outline-none border-b border-white/30 py-1">
             </div>
         </div>
     </header>
@@ -174,7 +175,13 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-1 px-4 pt-4 pb-32 overflow-y-auto bg-gray-50/50">
+    <main class="flex-1 px-4 pt-4 pb-32 overflow-y-auto bg-gray-50/50 relative">
+        <!-- Loading State -->
+        <div v-if="loading" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+            <div class="w-10 h-10 border-4 border-amber-900 border-t-transparent rounded-full animate-spin mb-2"></div>
+            <p class="text-[10px] font-bold text-amber-900 uppercase tracking-widest">Sinkronisasi Data...</p>
+        </div>
+
         <!-- Admin Login Panel -->
         <div v-if="showLogin" class="mb-6 p-6 bg-white rounded-3xl border border-orange-100 shadow-sm">
             <h3 class="text-xs font-black text-amber-900 uppercase mb-4 text-center">Admin Verification</h3>
@@ -213,28 +220,28 @@
                         <div class="space-y-2">
                             <div>
                                 <label class="text-[8px] font-bold uppercase text-gray-400">Nama Produk</label>
-                                <input type="text" v-model="item.name" @change="save" class="admin-input text-xs">
+                                <input type="text" v-model="item.name" @change="pushToGitHub" class="admin-input text-xs">
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[8px] font-bold uppercase text-gray-400">Harga (Rp)</label>
-                                    <input type="number" v-model.number="item.price" @change="save" class="admin-input text-xs">
+                                    <input type="number" v-model.number="item.price" @change="pushToGitHub" class="admin-input text-xs">
                                 </div>
                                 <div>
                                     <label class="text-[8px] font-bold uppercase text-gray-400">Stok</label>
-                                    <input type="number" v-model.number="item.stock" @change="save" class="admin-input text-xs">
+                                    <input type="number" v-model.number="item.stock" @change="pushToGitHub" class="admin-input text-xs">
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[8px] font-bold uppercase text-gray-400">Kategori</label>
-                                    <select v-model="item.category" @change="save" class="admin-input text-[10px] h-8">
+                                    <select v-model="item.category" @change="pushToGitHub" class="admin-input text-[10px] h-8">
                                         <option v-for="cat in categories.filter(c => c !== 'semua')" :value="cat">{{ cat }}</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="text-[8px] font-bold uppercase text-gray-400">Satuan</label>
-                                    <input type="text" v-model="item.unit" @change="save" class="admin-input text-xs" placeholder="pcs/box">
+                                    <input type="text" v-model="item.unit" @change="pushToGitHub" class="admin-input text-xs" placeholder="pcs/box">
                                 </div>
                             </div>
                         </div>
@@ -247,10 +254,10 @@
                             <select
                                 :value="getQty(item.name)"
                                 @change="setQtyFromSelect(item, $event)"
-                                class="custom-select bg-orange-50 text-amber-900 h-10 w-16 pl-3 rounded-xl font-black text-sm active-scale border border-orange-100 outline-none appearance-none"
+                                class="custom-select bg-orange-50 text-amber-900 h-10 w-16 rounded-xl font-black text-sm active-scale border border-orange-100 outline-none appearance-none"
                             >
                                 <option value="0">0</option>
-                                <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+                                <option v-for="n in item.stock > 10 ? 10 : item.stock" :key="n" :value="n">{{ n }}</option>
                             </select>
                         </div>
                         <span v-else class="text-[9px] font-bold text-red-400 px-3 py-2 bg-red-50 rounded-lg uppercase">Habis</span>
@@ -323,6 +330,13 @@ const { createApp } = Vue;
 createApp({
     data() {
         return {
+            // DATABASE GITHUB CONFIG
+            ghToken: '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',
+            ghOwner: 'ChaesaKitchen', // Ganti dengan username GitHub Anda
+            ghRepo: 'chaesa-data',     // Ganti dengan nama repository Anda
+            ghPath: 'data.json',
+            loading: true,
+
             isLoggedIn: false,
             showLogin: false,
             showCart: false,
@@ -337,11 +351,6 @@ createApp({
                 showPromo: true
             },
             waNumber: '6285385978915'
-            ghToken: 'ghp_MASUKKAN_TOKEN_ANDA_DISINI', 
-            ghOwner: 'USERNAME_GITHUB_ANDA',
-            ghRepo: 'chaesa-data',
-            ghPath: 'data.json'
-    }
         }
     },
     computed: {
@@ -353,6 +362,58 @@ createApp({
         totalPrice() { return this.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
     },
     methods: {
+        // GITHUB SYNC METHODS
+        async fetchFromGitHub() {
+            this.loading = true;
+            try {
+                const res = await fetch(`https://api.github.com/repos/${this.ghOwner}/${this.ghRepo}/contents/${this.ghPath}`, {
+                    headers: { 'Authorization': `token ${this.ghToken}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const content = JSON.parse(atob(data.content));
+                    this.products = content.products || [];
+                    this.config = content.config || this.config;
+                    this.sha = data.sha;
+                } else {
+                    // Create file if not exists
+                    this.pushToGitHub(true);
+                }
+            } catch (e) {
+                console.error("Fetch failed", e);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async pushToGitHub(isInitial = false) {
+            const content = btoa(JSON.stringify({
+                products: this.products,
+                config: this.config
+            }));
+
+            try {
+                const res = await fetch(`https://api.github.com/repos/${this.ghOwner}/${this.ghRepo}/contents/${this.ghPath}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${this.ghToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: "Update Kitchen Data",
+                        content: content,
+                        sha: this.sha
+                    })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    this.sha = data.content.sha;
+                }
+            } catch (e) {
+                console.error("Save failed", e);
+            }
+        },
+
         terbilang(nilai) {
             nilai = Math.abs(nilai);
             let simpan = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
@@ -430,56 +491,31 @@ createApp({
                 category: "lain lain",
                 unit: "pcs"
             });
-            this.save();
+            this.pushToGitHub();
         },
         removeProduct(idx) {
             if(confirm("Hapus produk ini?")) {
                 this.products.splice(idx, 1);
-                this.save();
+                this.pushToGitHub();
             }
-        },
-        save() {
-            const url = `https://api.github.com/repos/${this.ghOwner}/${this.ghRepo}/contents/${this.ghPath}`;
-    
-    try {
-        // 1. Ambil 'sha' (ID unik file) agar GitHub tahu kita mau nimpa file yang benar
-        const res = await fetch(url, {
-            headers: { 'Authorization': `token ${this.ghToken}` }
-        });
-        const fileData = await res.json();
-        const sha = fileData.sha;
-        await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${this.ghToken}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: 'Update stok oleh admin',
-                content: btoa(unescape(encodeURIComponent(JSON.stringify(this.products, null, 2)))), // Encode ke Base64
-                sha: sha
-            })
-        });
-        console.log("Data sinkron ke GitHub!");
-    } catch (e) {
-        console.error("Gagal sinkron:", e);
-    }
-},
-            
-        },
-        saveConfig() {
-            localStorage.setItem('chaesa_config', JSON.stringify(this.config));
         },
         chatAdmin() {
             window.open(`https://wa.me/${this.waNumber}?text=Halo Chaesa Kitchen...`);
         },
-        checkout() {
+        async checkout() {
             if(!this.form.name || !this.form.address || !this.form.phone) {
                 alert("Mohon lengkapi Nama, No WA, dan Alamat!");
                 return;
             }
 
-            // Membangun format teks sesuai permintaan user
+            // Update Stok di Database GitHub
+            this.cart.forEach(cartItem => {
+                const prod = this.products.find(p => p.name === cartItem.name);
+                if (prod) prod.stock -= cartItem.qty;
+            });
+            
+            await this.pushToGitHub();
+
             let message = `> ORDER TO CHAESA KITCHEN <\n`;
             message += `Nama Pemesan: ${this.form.name}\n`;
             message += `No WA: ${this.form.phone}\n`;
@@ -503,34 +539,15 @@ createApp({
 
             window.open(`https://wa.me/${this.waNumber}?text=${encodeURIComponent(message)}`);
             
-            // Reset state setelah checkout
             this.cart = [];
             this.showCart = false;
             this.form = { name: '', phone: '', address: '', note: '' };
         }
     },
-    async mounted() {
-        const url = `https://api.github.com/repos/${this.ghOwner}/${this.ghRepo}/contents/${this.ghPath}`;
-        try {
-        const res = await fetch(url, {
-            headers: { 'Authorization': `token ${this.ghToken}` }
-        });
-        const data = await res.json();
-            this.products = JSON.parse(data);
-        } else {
-            this.products = [
-                { name: "Risol Mayo", price: 3000, stock: 10, category: "risol", unit: "pcs" },
-                { name: "Fudgy Brownies Large", price: 45000, stock: 5, category: "brownies", unit: "box" },
-                { name: "Bawang Goreng 200 gram", price: 35000, stock: 20, category: "lain lain", unit: "toples" }
-            ];
-            this.save();
-        }
-        const conf = localStorage.getItem('chaesa_config');
-        if(conf) this.config = JSON.parse(conf);
+    mounted() {
+        this.fetchFromGitHub();
     }
 }).mount('#app');
 </script>
 </body>
 </html>
-
-
