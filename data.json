@@ -1,1 +1,29 @@
-[]
+{
+  "products": [
+    {
+      "name": "Risol",
+      "price": 2500,
+      "stock": 100,
+      "category": "risol",
+      "unit": "pcs"
+    },
+    {
+      "name": "Brownies",
+      "price": 35000,
+      "stock": 100,
+      "category": "brownies",
+      "unit": "box"
+    },
+    {
+      "name": "Kue Nastar",
+      "price": 85000,
+      "stock": 100,
+      "category": "lain lain",
+      "unit": "toples"
+    }
+  ],
+  "config": {
+    "promoText": "Diskon Ongkir 5rb Khusus Hari Ini!",
+    "showPromo": true
+  }
+}
