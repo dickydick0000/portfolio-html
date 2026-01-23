@@ -509,10 +509,9 @@ createApp({
             this.form = { name: '', phone: '', address: '', note: '' };
         }
     },
-    mounted() {
+    async mounted() {
         const url = `https://api.github.com/repos/${this.ghOwner}/${this.ghRepo}/contents/${this.ghPath}`;
-    
-    try {
+        try {
         const res = await fetch(url, {
             headers: { 'Authorization': `token ${this.ghToken}` }
         });
@@ -533,4 +532,5 @@ createApp({
 </script>
 </body>
 </html>
+
 
