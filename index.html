@@ -109,7 +109,11 @@
                         <div v-else class="space-y-2">
                             <div class="grid grid-cols-2 gap-2">
                                 <input v-model="item.name" @change="saveToFirebase" class="admin-input" placeholder="Nama Menu">
-                                <input v-model="item.category" @change="saveToFirebase" class="admin-input" placeholder="Kategori (risol/brownies/dll)">
+                                <select v-model="item.category" @change="saveToFirebase" class="admin-input appearance-none bg-no-repeat">
+                                    <option v-for="cat in adminCategories" :key="cat" :value="cat">
+                                        {{ cat.toUpperCase() }}
+                                    </option>
+                                </select>
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <input type="number" v-model.number="item.price" @change="saveToFirebase" class="admin-input" placeholder="Harga">
@@ -201,9 +205,12 @@ Vue.createApp({
         }
     },
     computed: {
+        adminCategories() {
+            return this.categories.filter(c => c !== 'semua');
+        },
         displayCategories() {
-            if (this.isLoggedIn) return this.categories.filter(c => c !== 'semua');
-            return this.activeTab === 'semua' ? this.categories.filter(c => c !== 'semua') : [this.activeTab];
+            if (this.isLoggedIn) return this.adminCategories;
+            return this.activeTab === 'semua' ? this.adminCategories : [this.activeTab];
         },
         cartTotal() { return this.cart.reduce((s, i) => s + i.qty, 0); },
         totalPrice() { return this.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
@@ -250,7 +257,6 @@ Vue.createApp({
             }
         },
         getQty(name) { const item = this.cart.find(c => c.name === name); return item ? item.qty : 0; },
-        // Default category saat tambah baru adalah 'lain lain'
         addProduct() { this.products.push({ name: 'Menu Baru', price: 0, stock: 10, category: 'lain lain', unit: 'pcs' }); this.saveToFirebase(); },
         removeProduct(item) { if(confirm('Hapus menu ini?')) { this.products = this.products.filter(p => p !== item); this.saveToFirebase(); } },
         
