@@ -219,7 +219,7 @@ Vue.createApp({
         async checkout() {
             if(!this.form.name || !this.form.address) return alert("Lengkapi Nama dan Alamat!");
             
-            let msg = `ORDER TO CHAESA KITCHEN\n`;
+            let msg = `ORDER TO CHAESA KITCHEN`;
             msg += `Nama Pemesan: ${this.form.name}\n`;
             msg += `No WA: ${this.form.phone || '-'}\n`;
             msg += `Alamat: ${this.form.address}\n`;
@@ -251,3 +251,4 @@ Vue.createApp({
 </script>
 </body>
 </html>
+
