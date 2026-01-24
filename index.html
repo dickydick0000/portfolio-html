@@ -6,128 +6,42 @@
     <title>Chaesa Kitchen - Premium Homemade</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --brand-primary: #78350f;
-            --brand-secondary: #b45309;
-        }
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            overscroll-behavior-y: contain;
-            background-color: #f3f4f6;
-        }
-        
+        :root { --brand-primary: #78350f; --brand-secondary: #b45309; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: contain; background-color: #f3f4f6; }
         .safe-area-top { padding-top: env(safe-area-inset-top); }
-        .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
-
-        .meat-gradient {
-            background: linear-gradient(135deg, #78350f 0%, #b45309 100%);
-            position: relative;
-        }
-
-        .kitchen-pattern {
-            position: absolute;
-            inset: 0;
-            opacity: 0.12;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
-            mask-image: linear-gradient(to bottom, black, transparent);
-        }
-
-        .ornament-layer {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            padding: 10px;
-            opacity: 0.15;
-        }
-
+        .meat-gradient { background: linear-gradient(135deg, #78350f 0%, #b45309 100%); position: relative; }
+        .kitchen-pattern { position: absolute; inset: 0; opacity: 0.12; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z' fill='%23ffffff'/%3E%3C/svg%3E"); mask-image: linear-gradient(to bottom, black, transparent); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         [v-cloak] { display: none; }
-        
         .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
         .active-scale:active { transform: scale(0.96); transition: transform 0.1s; }
-        
-        .sheet-enter-active, .sheet-leave-active { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .sheet-enter-from, .sheet-leave-to { transform: translateY(100%); }
-
-        .tab-active {
-            background: var(--brand-primary);
-            color: white;
-            box-shadow: 0 4px 12px rgba(120, 53, 15, 0.2);
-        }
-
-        .nav-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-        }
-
-        .custom-select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2378350f'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.5rem center;
-            background-size: 1rem;
-            padding-right: 1.5rem;
-            padding-left: 0.75rem;
-        }
-
-        @keyframes subtle-float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        .float-icon { animation: subtle-float 4s ease-in-out infinite; }
-
+        .tab-active { background: var(--brand-primary); color: white; box-shadow: 0 4px 12px rgba(120, 53, 15, 0.2); }
+        .admin-input { background: #fdf2f2; border: 1px solid #fed7d7; border-radius: 8px; padding: 4px 8px; font-weight: bold; color: #78350f; width: 100%; outline: none; }
         input, select, textarea { font-size: 16px !important; }
-
-        .admin-input {
-            background: #fdf2f2;
-            border: 1px solid #fed7d7;
-            border-radius: 8px;
-            padding: 4px 8px;
-            font-weight: bold;
-            color: #78350f;
-            width: 100%;
-            outline: none;
-        }
-        .admin-input:focus {
-            border-color: #b45309;
-            background: white;
-        }
     </style>
 </head>
 <body class="bg-gray-100">
 
 <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white relative flex flex-col shadow-2xl">
     
-    <!-- Header -->
     <header class="meat-gradient px-6 pt-12 pb-8 rounded-b-[2.5rem] overflow-hidden shrink-0 safe-area-top">
         <div class="kitchen-pattern"></div>
-        <div class="ornament-layer">
-            <i class="fas fa-cookie float-icon text-white text-xl"></i>
-            <i class="fas fa-utensils float-icon text-white text-lg"></i>
-            <i class="fas fa-bread-slice float-icon text-white text-xl"></i>
-            <i class="fas fa-blender float-icon text-white text-lg"></i>
-        </div>
-
         <div class="flex justify-between items-start relative z-10">
             <div class="flex items-center gap-3">
-                <div class="w-16 h-16 bg-white rounded-full p-0.5 shadow-xl border border-white/20 overflow-hidden flex items-center justify-center">
+                <div class="w-16 h-16 bg-white rounded-full p-0.5 shadow-xl flex items-center justify-center overflow-hidden">
                     <img src="image/logo.png" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
                 </div>
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight text-white leading-none">Chaesa Kitchen</h1>
-                    <p class="text-orange-200/80 text-[10px] uppercase font-bold tracking-[0.2em] mt-1">Premium Homemade Food</p>
+                    <h1 class="text-2xl font-extrabold text-white leading-none">Chaesa Kitchen</h1>
+                    <p class="text-orange-200/80 text-[10px] uppercase font-bold tracking-widest mt-1">Premium Homemade Food</p>
                 </div>
             </div>
-
             <div class="flex gap-2">
                 <button @click="chatAdmin" class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md active-scale border border-white/10">
                     <i class="fab fa-whatsapp text-lg text-green-300"></i>
@@ -138,221 +52,121 @@
             </div>
         </div>
 
-        <!-- Promo Box -->
-        <div class="mt-6 min-h-[60px] flex flex-col justify-center transition-all">
-            <div class="bg-black/20 backdrop-blur-md p-3 rounded-2xl flex-1 border border-white/10 relative"
-                 :class="[!config.showPromo && !isLoggedIn ? 'opacity-0 pointer-events-none' : 'opacity-100']">
-                
+        <div class="mt-6 min-h-[60px] flex flex-col justify-center">
+            <div v-if="config.showPromo || isLoggedIn" class="bg-black/20 backdrop-blur-md p-3 rounded-2xl border border-white/10">
                 <div class="flex justify-between items-center mb-1">
-                    <div class="flex items-center gap-1.5">
-                        <i class="fas fa-tag text-[8px] text-orange-300"></i>
-                        <p class="text-orange-200 text-[8px] font-black uppercase tracking-widest">Promo Hari Ini</p>
-                    </div>
-                    <div v-if="isLoggedIn" class="flex items-center cursor-pointer" @click="config.showPromo = !config.showPromo; pushToGitHub()">
-                        <div class="relative w-6 h-3 rounded-full bg-white/20">
-                            <div class="absolute left-0 w-3 h-3 transition transform bg-white rounded-full shadow" :class="config.showPromo ? 'translate-x-3 bg-green-400' : 'translate-x-0 bg-gray-400'"></div>
-                        </div>
+                    <p class="text-orange-200 text-[8px] font-black uppercase tracking-widest">Promo Hari Ini</p>
+                    <div v-if="isLoggedIn" @click="config.showPromo = !config.showPromo; saveData()" class="cursor-pointer">
+                        <i class="fas fa-power-off text-[10px]" :class="config.showPromo ? 'text-green-400' : 'text-gray-400'"></i>
                     </div>
                 </div>
-
                 <div v-if="!isLoggedIn" class="text-white text-xs font-bold">{{ config.promoText }}</div>
-                <input v-else type="text" v-model="config.promoText" @change="pushToGitHub"
-                        class="bg-white/10 text-white text-xs font-bold w-full outline-none border-b border-white/30 py-1">
+                <input v-else type="text" v-model="config.promoText" @change="saveData" class="bg-transparent text-white text-xs font-bold w-full outline-none border-b border-white/30">
             </div>
         </div>
     </header>
 
-    <!-- Navigation Tabs -->
-    <nav class="sticky top-0 bg-white/95 backdrop-blur-md z-30 px-4 py-4 border-b border-gray-100 shrink-0">
-        <div class="nav-grid">
-            <button v-for="cat in categories"
-                    @click="activeTab = cat"
-                    :class="activeTab === cat ? 'tab-active' : 'bg-gray-50 text-gray-400'"
-                    class="py-2.5 rounded-xl text-[9px] font-bold uppercase tracking-tighter transition-all active-scale text-center truncate">
-                {{ cat }}
-            </button>
-        </div>
+    <nav class="sticky top-0 bg-white/95 backdrop-blur-md z-30 px-4 py-4 border-b border-gray-100 flex gap-2 overflow-x-auto no-scrollbar">
+        <button v-for="cat in categories" @click="activeTab = cat" :class="activeTab === cat ? 'tab-active' : 'bg-gray-50 text-gray-400'"
+                class="px-5 py-2.5 rounded-xl text-[9px] font-bold uppercase whitespace-nowrap transition-all active-scale">
+            {{ cat }}
+        </button>
     </nav>
 
-    <!-- Main Content -->
     <main class="flex-1 px-4 pt-4 pb-32 overflow-y-auto bg-gray-50/50 relative">
-        <!-- Loading State -->
-        <div v-if="loading" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+        <div v-if="loading" class="flex flex-col items-center mt-20">
             <div class="w-10 h-10 border-4 border-amber-900 border-t-transparent rounded-full animate-spin mb-2"></div>
-            <p class="text-[10px] font-bold text-amber-900 uppercase tracking-widest">Sinkronisasi Data...</p>
+            <p class="text-[10px] font-bold text-amber-900 uppercase">Menghubungkan Database...</p>
         </div>
 
-        <!-- Admin Login Panel -->
         <div v-if="showLogin" class="mb-6 p-6 bg-white rounded-3xl border border-orange-100 shadow-sm">
-            <h3 class="text-xs font-black text-amber-900 uppercase mb-4 text-center">Admin Verification</h3>
-            <input type="password" v-model="passInput" @keyup.enter="login" placeholder="Pin Akses"
-                    class="w-full p-4 rounded-2xl bg-gray-50 border-none text-center font-bold tracking-widest outline-none focus:ring-2 focus:ring-amber-800">
+            <input type="password" v-model="passInput" @keyup.enter="login" placeholder="Pin Akses" class="w-full p-4 rounded-2xl bg-gray-50 border-none text-center font-bold outline-none focus:ring-2 focus:ring-amber-800">
             <button @click="login" class="w-full mt-3 bg-amber-900 text-white py-4 rounded-2xl font-bold text-xs uppercase active-scale">Akses Sekarang</button>
         </div>
 
-        <!-- Product List -->
         <div class="space-y-4">
-            <div v-for="(item, index) in filteredProducts" :key="index"
-                 class="bg-white p-4 rounded-3xl border border-gray-100 card-shadow flex items-start gap-4 transition-all"
-                 :class="{'opacity-60': item.stock <= 0 && !isLoggedIn}">
-                
-                <div :class="getIconBg(item.name)" class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner mt-1">
-                    <i class="fas text-xl" :class="[getIcon(item.name), getIconColor(item.name)]"></i>
+            <div v-for="(item, index) in filteredProducts" :key="index" class="bg-white p-4 rounded-3xl border border-gray-100 card-shadow flex items-start gap-4">
+                <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center shrink-0">
+                    <i class="fas text-xl text-orange-600" :class="getIcon(item.name)"></i>
                 </div>
-
                 <div class="flex-1 min-w-0">
-                    <!-- VIEW MODE -->
                     <template v-if="!isLoggedIn">
-                        <h4 class="font-bold text-gray-800 text-[14px] leading-tight mb-1 truncate">{{ item.name }}</h4>
-                        <div class="flex items-center gap-1.5 mb-1">
-                            <span class="w-1.5 h-1.5 rounded-full" :class="item.stock > 0 ? 'bg-green-500' : 'bg-red-500'"></span>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                                {{ item.stock }} {{ item.unit }} Tersedia
-                            </span>
-                        </div>
-                        <div class="text-amber-900 font-extrabold text-lg">
-                            <span class="text-[10px] font-bold mr-0.5 opacity-50">Rp</span>{{ item.price.toLocaleString() }}
-                        </div>
+                        <h4 class="font-bold text-gray-800 text-sm truncate">{{ item.name }}</h4>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ item.stock }} {{ item.unit }} Tersedia</p>
+                        <div class="text-amber-900 font-extrabold text-lg">Rp {{ item.price.toLocaleString() }}</div>
                     </template>
-
-                    <!-- EDIT MODE -->
                     <template v-else>
-                        <div class="space-y-2">
-                            <div>
-                                <label class="text-[8px] font-bold uppercase text-gray-400">Nama Produk</label>
-                                <input type="text" v-model="item.name" @change="pushToGitHub" class="admin-input text-xs">
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="text-[8px] font-bold uppercase text-gray-400">Harga (Rp)</label>
-                                    <input type="number" v-model.number="item.price" @change="pushToGitHub" class="admin-input text-xs">
-                                </div>
-                                <div>
-                                    <label class="text-[8px] font-bold uppercase text-gray-400">Stok</label>
-                                    <input type="number" v-model.number="item.stock" @change="pushToGitHub" class="admin-input text-xs">
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="text-[8px] font-bold uppercase text-gray-400">Kategori</label>
-                                    <select v-model="item.category" @change="pushToGitHub" class="admin-input text-[10px] h-8">
-                                        <option v-for="cat in categories.filter(c => c !== 'semua')" :value="cat">{{ cat }}</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="text-[8px] font-bold uppercase text-gray-400">Satuan</label>
-                                    <input type="text" v-model="item.unit" @change="pushToGitHub" class="admin-input text-xs" placeholder="pcs/box">
-                                </div>
-                            </div>
+                        <input type="text" v-model="item.name" @change="saveData" class="admin-input text-xs mb-1">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" v-model.number="item.price" @change="saveData" class="admin-input text-xs" placeholder="Harga">
+                            <input type="number" v-model.number="item.stock" @change="saveData" class="admin-input text-xs" placeholder="Stok">
                         </div>
                     </template>
                 </div>
-
-                <div class="shrink-0 flex flex-col items-end gap-2">
+                <div class="shrink-0">
                     <div v-if="!isLoggedIn">
-                        <div v-if="item.stock > 0" class="relative">
-                            <select
-                                :value="getQty(item.name)"
-                                @change="setQtyFromSelect(item, $event)"
-                                class="custom-select bg-orange-50 text-amber-900 h-10 w-16 rounded-xl font-black text-sm active-scale border border-orange-100 outline-none appearance-none"
-                            >
-                                <option value="0">0</option>
-                                <option v-for="n in item.stock > 10 ? 10 : item.stock" :key="n" :value="n">{{ n }}</option>
-                            </select>
-                        </div>
+                        <select v-if="item.stock > 0" @change="setQtyFromSelect(item, $event)" class="bg-orange-50 text-amber-900 h-10 w-16 rounded-xl font-black text-sm outline-none">
+                            <option value="0">0</option>
+                            <option v-for="n in Math.min(item.stock, 10)" :value="n">{{ n }}</option>
+                        </select>
                         <span v-else class="text-[9px] font-bold text-red-400 px-3 py-2 bg-red-50 rounded-lg uppercase">Habis</span>
                     </div>
-                    <button v-else @click="removeProduct(index)" class="w-10 h-10 bg-red-50 text-red-400 rounded-xl active-scale flex items-center justify-center">
-                        <i class="fas fa-trash-alt text-sm"></i>
-                    </button>
+                    <button v-else @click="removeProduct(index)" class="w-10 h-10 bg-red-50 text-red-400 rounded-xl"><i class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
         </div>
-
-        <button v-if="isLoggedIn" @click="addProduct" class="w-full mt-6 py-4 border-2 border-dashed border-gray-200 rounded-3xl text-gray-400 font-bold text-xs uppercase active-scale">
-            + Tambah Menu Baru
-        </button>
+        <button v-if="isLoggedIn" @click="addProduct" class="w-full mt-6 py-4 border-2 border-dashed border-gray-200 rounded-3xl text-gray-400 font-bold text-xs uppercase">+ Tambah Menu Baru</button>
     </main>
 
-    <!-- Floating Cart Bar -->
-    <transition name="sheet">
-        <div v-if="cartTotal > 0 && !showCart && !isLoggedIn"
-             @click="showCart = true"
-             class="fixed bottom-6 left-4 right-4 bg-amber-900 text-white p-2 rounded-2xl shadow-2xl flex items-center z-40 active-scale cursor-pointer border border-white/10 max-w-[392px] mx-auto safe-area-bottom">
-            <div class="bg-orange-500 w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0">
-                <i class="fas fa-shopping-cart"></i>
-            </div>
-            <div class="ml-4 flex-1">
-                <p class="text-[9px] font-bold text-orange-200 uppercase tracking-widest leading-none mb-1">{{ cartTotal }} Item Dipilih</p>
-                <p class="text-sm font-black">Rp {{ totalPrice.toLocaleString() }}</p>
-            </div>
-            <div class="bg-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10 mr-1">
-                Lanjut <i class="fas fa-arrow-right ml-1"></i>
-            </div>
+    <div v-if="cartTotal > 0 && !showCart" @click="showCart = true" class="fixed bottom-6 left-4 right-4 bg-amber-900 text-white p-2 rounded-2xl flex items-center z-40 max-w-[392px] mx-auto">
+        <div class="bg-orange-500 w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0"><i class="fas fa-shopping-cart"></i></div>
+        <div class="ml-4 flex-1">
+            <p class="text-[9px] font-bold text-orange-200 uppercase mb-1">{{ cartTotal }} Item</p>
+            <p class="text-sm font-black">Rp {{ totalPrice.toLocaleString() }}</p>
         </div>
-    </transition>
+        <div class="bg-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase">Lanjut <i class="fas fa-arrow-right"></i></div>
+    </div>
 
-    <!-- Checkout Sheet -->
     <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
         <div class="absolute inset-0" @click="showCart = false"></div>
-        <div class="bg-white rounded-t-[3rem] max-h-[92vh] flex flex-col relative animate-slide-up max-w-md mx-auto w-full shadow-2xl">
-            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-4 mb-2"></div>
-            <div class="p-8 overflow-y-auto no-scrollbar flex-1 safe-area-bottom">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-xl font-black text-gray-800">Checkout</h2>
-                    <button @click="showCart = false" class="bg-gray-100 w-10 h-10 rounded-full text-gray-400 active-scale flex items-center justify-center"><i class="fas fa-times"></i></button>
-                </div>
-
-                <div class="space-y-3 mb-8">
-                    <input v-model="form.name" type="text" placeholder="Nama Anda" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none">
-                    <input v-model="form.phone" type="tel" placeholder="No WhatsApp (Aktif)" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none">
-                    <textarea v-model="form.address" placeholder="Alamat Pengiriman Lengkap" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none h-24 resize-none"></textarea>
-                    <textarea v-model="form.note" placeholder="Pesan/Catatan (Opsional)" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none h-20 resize-none"></textarea>
-                </div>
-
-                <div class="border-t border-gray-100 pt-6">
-                    <div class="flex flex-col mb-6">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Tagihan</p>
-                        <p class="text-2xl font-black text-amber-900">Rp {{ totalPrice.toLocaleString() }}</p>
-                    </div>
-                    <button @click="checkout" class="w-full bg-amber-900 text-white py-5 rounded-2xl font-black text-sm active-scale flex items-center justify-center gap-3 shadow-xl">
-                        PESAN VIA WHATSAPP
-                    </button>
-                </div>
+        <div class="bg-white rounded-t-[3rem] p-8 max-w-md mx-auto w-full relative">
+            <h2 class="text-xl font-black mb-6">Detail Pesanan</h2>
+            <div class="space-y-3 mb-6">
+                <input v-model="form.name" type="text" placeholder="Nama" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold">
+                <input v-model="form.phone" type="tel" placeholder="No WhatsApp" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold">
+                <textarea v-model="form.address" placeholder="Alamat Lengkap" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold h-24"></textarea>
             </div>
+            <button @click="checkout" class="w-full bg-amber-900 text-white py-5 rounded-2xl font-black shadow-xl">PESAN VIA WHATSAPP</button>
         </div>
     </div>
 </div>
 
 <script>
+// --- KONFIGURASI FIREBASE ---
+// Masukkan data dari Firebase Console -> Project Settings -> General -> Your Apps
+const firebaseConfig = {
+    apiKey: "GANTI_DENGAN_API_KEY_ANDA",
+    authDomain: "chaesa-kitchen.firebaseapp.com",
+    databaseURL: "GANTI_DENGAN_DATABASE_URL_ANDA",
+    projectId: "chaesa-kitchen",
+    storageBucket: "chaesa-kitchen.appspot.com",
+    messagingSenderId: "...",
+    appId: "..."
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 const { createApp } = Vue;
 
 createApp({
     data() {
         return {
-            ghToken: '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',
-            ghOwner: 'ChaesaKitchen',
-            ghRepo: 'chaesa-data',
-            ghPath: 'data.json',
-            loading: true,
-
-            isLoggedIn: false,
-            showLogin: false,
-            showCart: false,
-            passInput: '',
-            activeTab: 'semua',
+            loading: true, isLoggedIn: false, showLogin: false, showCart: false,
+            passInput: '', activeTab: 'semua',
             categories: ['semua', 'risol', 'brownies', 'lain lain'],
             form: { name: '', phone: '', address: '', note: '' },
-            cart: [],
-            products: [
-                { name: "Risol", price: 2500, stock: 100, category: "risol", unit: "pcs" },
-                { name: "Brownies", price: 35000, stock: 100, category: "brownies", unit: "box" },
-                { name: "Kue Nastar", price: 85000, stock: 100, category: "lain lain", unit: "toples" }
-            ],
-            config: {
-                promoText: 'Diskon Ongkir 5rb Khusus Hari Ini!',
-                showPromo: true
-            },
+            cart: [], products: [],
+            config: { promoText: 'Memuat promo...', showPromo: true },
             waNumber: '6285385978915'
         }
     },
@@ -361,201 +175,4 @@ createApp({
             if (this.activeTab === 'semua') return this.products;
             return this.products.filter(p => p.category === this.activeTab);
         },
-        cartTotal() { return this.cart.reduce((s, i) => s + i.qty, 0); },
-        totalPrice() { return this.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
-    },
-    methods: {
-        async fetchFromGitHub() {
-            this.loading = true;
-            try {
-                const res = await fetch(`https://api.github.com/repos/${this.ghOwner}/${this.ghRepo}/contents/${this.ghPath}`, {
-                    headers: { 'Authorization': `token ${this.ghToken}` }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    const content = JSON.parse(atob(data.content));
-                    if (content.products && content.products.length > 0) {
-                        this.products = content.products;
-                    }
-                    this.config = content.config || this.config;
-                    this.sha = data.sha;
-                } else {
-                    await this.pushToGitHub(true);
-                }
-            } catch (e) {
-                console.error("Fetch failed", e);
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        async pushToGitHub(isInitial = false) {
-            const content = btoa(JSON.stringify({
-                products: this.products,
-                config: this.config
-            }));
-
-            try {
-                const res = await fetch(`https://api.github.com/repos/${this.ghOwner}/${this.ghRepo}/contents/${this.ghPath}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${this.ghToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: "Update Kitchen Data",
-                        content: content,
-                        sha: this.sha
-                    })
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    this.sha = data.content.sha;
-                }
-            } catch (e) {
-                console.error("Save failed", e);
-            }
-        },
-
-        terbilang(angka) {
-            const bilangan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
-            let hasil = "";
-            let n = Math.abs(Math.floor(angka));
-
-            if (n < 12) {
-                hasil = " " + bilangan[n];
-            } else if (n < 20) {
-                hasil = this.terbilang(n - 10) + " belas";
-            } else if (n < 100) {
-                hasil = this.terbilang(Math.floor(n / 10)) + " puluh" + this.terbilang(n % 10);
-            } else if (n < 200) {
-                hasil = " seratus" + this.terbilang(n - 100);
-            } else if (n < 1000) {
-                hasil = this.terbilang(Math.floor(n / 100)) + " ratus" + this.terbilang(n % 100);
-            } else if (n < 2000) {
-                hasil = " seribu" + this.terbilang(n - 1000);
-            } else if (n < 1000000) {
-                hasil = this.terbilang(Math.floor(n / 1000)) + " ribu" + this.terbilang(n % 1000);
-            } else if (n < 1000000000) {
-                hasil = this.terbilang(Math.floor(n / 1000000)) + " juta" + this.terbilang(n % 1000000);
-            }
-            
-            return hasil.trim();
-        },
-        getIcon(name) {
-            const n = name.toLowerCase();
-            if (n.includes('risol')) return 'fa-hotdog';
-            if (n.includes('brownies')) return 'fa-bread-slice';
-            if (n.includes('bawang')) return 'fa-seedling';
-            if (n.includes('nastar') || n.includes('kue')) return 'fa-cookie';
-            return 'fa-cookie-bite';
-        },
-        getIconBg(name) {
-            const n = name.toLowerCase();
-            if (n.includes('risol')) return 'bg-orange-50';
-            if (n.includes('brownies')) return 'bg-amber-50';
-            if (n.includes('nastar')) return 'bg-yellow-50';
-            return 'bg-gray-100';
-        },
-        getIconColor(name) {
-            const n = name.toLowerCase();
-            if (n.includes('risol')) return 'text-orange-600';
-            if (n.includes('brownies')) return 'text-amber-800';
-            if (n.includes('nastar')) return 'text-yellow-600';
-            return 'text-amber-900/40';
-        },
-        toggleAdmin() {
-            if(this.isLoggedIn) this.isLoggedIn = false;
-            else this.showLogin = !this.showLogin;
-        },
-        login() {
-            if(this.passInput === 'admin123') {
-                this.isLoggedIn = true;
-                this.showLogin = false;
-                this.passInput = '';
-            } else {
-                alert("Pin Salah!");
-            }
-        },
-        setQtyFromSelect(product, event) {
-            const n = parseInt(event.target.value);
-            const idx = this.cart.findIndex(c => c.name === product.name);
-            if (n === 0) {
-                if (idx !== -1) this.cart.splice(idx, 1);
-            } else {
-                if (idx !== -1) this.cart[idx].qty = n;
-                else this.cart.push({ ...product, qty: n });
-            }
-        },
-        getQty(name) {
-            const item = this.cart.find(c => c.name === name);
-            return item ? item.qty : 0;
-        },
-        addProduct() {
-            this.products.unshift({
-                name: "Produk Baru",
-                price: 0,
-                stock: 0,
-                category: "lain lain",
-                unit: "pcs"
-            });
-            this.pushToGitHub();
-        },
-        removeProduct(idx) {
-            if(confirm("Hapus produk ini?")) {
-                this.products.splice(idx, 1);
-                this.pushToGitHub();
-            }
-        },
-        chatAdmin() {
-            window.open(`https://wa.me/${this.waNumber}?text=Halo Chaesa Kitchen...`);
-        },
-        async checkout() {
-            if(!this.form.name || !this.form.address || !this.form.phone) {
-                alert("Mohon lengkapi Nama, No WA, dan Alamat!");
-                return;
-            }
-
-            this.cart.forEach(cartItem => {
-                const prod = this.products.find(p => p.name === cartItem.name);
-                if (prod) prod.stock -= cartItem.qty;
-            });
-            
-            await this.pushToGitHub();
-
-            let message = `> ORDER TO CHAESA KITCHEN <\n`;
-            message += `Nama Pemesan: ${this.form.name}\n`;
-            message += `No WA: ${this.form.phone}\n`;
-            message += `Alamat: ${this.form.address}\n`;
-            message += `Pesan/Catatan: ${this.form.note || '-'}\n`;
-            message += `------------------------------------------\n\n`;
-
-            this.cart.forEach(item => {
-                const subtotal = item.price * item.qty;
-                message += `${item.name}\n`;
-                message += `${item.qty} ${item.unit} x Rp ${item.price.toLocaleString()}\n`;
-                message += `Subtotal: Rp ${subtotal.toLocaleString()}\n\n`;
-            });
-
-            // Logika Terbilang EYD & Proper Case
-            const terbilangStr = this.terbilang(this.totalPrice) + " rupiah";
-            const terbilangFormatted = terbilangStr.charAt(0).toUpperCase() + terbilangStr.slice(1);
-
-            message += `------------------------------------------\n`;
-            message += `TOTAL TAGIHAN: Rp ${this.totalPrice.toLocaleString()}\n`;
-            message += `(${terbilangFormatted})`;
-
-            window.open(`https://wa.me/${this.waNumber}?text=${encodeURIComponent(message)}`);
-            
-            this.cart = [];
-            this.showCart = false;
-            this.form = { name: '', phone: '', address: '', note: '' };
-        }
-    },
-    mounted() {
-        this.fetchFromGitHub();
-    }
-}).mount('#app');
-</script>
-</body>
-</html>
+        cartTotal() { return this.cart.
