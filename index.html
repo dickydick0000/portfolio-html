@@ -113,9 +113,10 @@
                                     <option v-for="cat in adminCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
                                 </select>
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-3 gap-2">
                                 <input type="number" v-model.number="item.price" @change="saveToFirebase" class="admin-input" placeholder="Harga">
                                 <input type="number" v-model.number="item.stock" @change="saveToFirebase" class="admin-input" placeholder="Stok">
+                                <input v-model="item.unit" @change="saveToFirebase" class="admin-input" placeholder="Satuan">
                             </div>
                         </div>
                     </div>
@@ -252,7 +253,16 @@ Vue.createApp({
             }
         },
         getQty(name) { const item = this.cart.find(c => c.name === name); return item ? item.qty : 0; },
-        addProduct() { this.products.push({ name: 'Menu Baru', price: 0, stock: 10, category: 'lain lain', unit: 'pcs' }); this.saveToFirebase(); },
+        addProduct() { 
+            this.products.push({ 
+                name: 'Menu Baru', 
+                price: 0, 
+                stock: 10, 
+                category: 'lain lain', 
+                unit: 'pcs' 
+            }); 
+            this.saveToFirebase(); 
+        },
         removeProduct(item) { if(confirm('Hapus menu ini?')) { this.products = this.products.filter(p => p !== item); this.saveToFirebase(); } },
         terbilang(n) {
             const angka = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
@@ -269,7 +279,6 @@ Vue.createApp({
         },
         async checkout() {
             if(!this.form.name || !this.form.address) return alert("Lengkapi Nama dan Alamat!");
-            // Menggunakan bintang (*) untuk membuat teks BOLD di WhatsApp
             let msg = `*ORDER TO CHAESA KITCHEN*\n`;
             msg += `Nama Pemesan: ${this.form.name}\n`;
             msg += `No WA: ${this.form.phone || '-'}\n`;
@@ -277,8 +286,15 @@ Vue.createApp({
             msg += `Pesan/Catatan: ${this.form.note || '-'}\n`;
             msg += `------------------------------------------\n\n`;
             this.cart.forEach(i => { 
-                // Menambahkan bintang (*) pada nama item
-                msg += `*${i.name}*\n${i.qty} ${i.unit || 'pcs'} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
+                let namaItem = i.name.toLowerCase();
+                let satuan = i.unit || 'pcs';
+                
+                // Logika satuan otomatis
+                if(namaItem.includes('brownies')) satuan = 'Box';
+                if(namaItem.includes('nastar') || namaItem.includes('kue kacang') || namaItem.includes('putri salju')) satuan = 'Toples';
+
+                msg += `*${i.name}*\n${i.qty} ${satuan} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
+                
                 const p = this.products.find(pr => pr.name === i.name);
                 if(p) p.stock -= i.qty;
             });
