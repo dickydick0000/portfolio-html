@@ -31,7 +31,6 @@
     
     <header class="meat-gradient px-6 pt-12 pb-8 rounded-b-[2.5rem] overflow-hidden safe-area-top relative">
         <div class="kitchen-pattern"></div>
-        
         <div class="relative z-10">
             <div class="flex items-center gap-4 mb-6">
                 <div class="w-[100px] h-[100px] shrink-0 flex items-center justify-center">
@@ -108,7 +107,10 @@
                             </div>
                         </div>
                         <div v-else class="space-y-2">
-                            <input v-model="item.name" @change="saveToFirebase" class="admin-input" placeholder="Nama Menu">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input v-model="item.name" @change="saveToFirebase" class="admin-input" placeholder="Nama Menu">
+                                <input v-model="item.category" @change="saveToFirebase" class="admin-input" placeholder="Kategori (risol/brownies/dll)">
+                            </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <input type="number" v-model.number="item.price" @change="saveToFirebase" class="admin-input" placeholder="Harga">
                                 <input type="number" v-model.number="item.stock" @change="saveToFirebase" class="admin-input" placeholder="Stok">
@@ -248,6 +250,7 @@ Vue.createApp({
             }
         },
         getQty(name) { const item = this.cart.find(c => c.name === name); return item ? item.qty : 0; },
+        // Default category saat tambah baru adalah 'lain lain'
         addProduct() { this.products.push({ name: 'Menu Baru', price: 0, stock: 10, category: 'lain lain', unit: 'pcs' }); this.saveToFirebase(); },
         removeProduct(item) { if(confirm('Hapus menu ini?')) { this.products = this.products.filter(p => p !== item); this.saveToFirebase(); } },
         
