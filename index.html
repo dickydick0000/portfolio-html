@@ -20,6 +20,7 @@
         .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
         .tab-active { background: var(--brand-primary); color: white; border-color: var(--brand-primary); }
         .admin-input { background: #fdf2f2; border: 1px solid #fed7d7; border-radius: 8px; padding: 6px; font-weight: bold; color: #78350f; width: 100%; outline: none; font-size: 12px; }
+        .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 12px; transition: all 0.2s; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -85,7 +86,6 @@
                             <h4 class="font-bold text-gray-800 text-sm leading-tight truncate">{{ item.name }}</h4>
                             <div class="flex items-center gap-2 mt-1">
                                 <span class="text-amber-900 font-black text-sm">Rp {{ item.price.toLocaleString() }}</span>
-                                <span class="text-[9px] font-bold text-gray-400">/ {{ item.unit || 'pcs' }}</span>
                             </div>
                         </div>
                         <div v-else class="space-y-2">
@@ -98,15 +98,14 @@
                     </div>
 
                     <div class="shrink-0">
-                        <div v-if="!isLoggedIn && item.stock > 0" class="relative">
-                            <select :value="getQty(item.name)" @change="setQty(item, $event)" 
-                                    class="appearance-none bg-orange-50 h-9 w-12 rounded-lg font-bold text-amber-900 border border-orange-200 text-center text-xs outline-none cursor-pointer">
-                                <option value="0">0</option>
-                                <option v-for="n in Math.min(item.stock, 20)" :value="n">{{n}}</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-1 flex items-center">
-                                <i class="fas fa-chevron-down text-[8px] text-orange-400"></i>
-                            </div>
+                        <div v-if="!isLoggedIn" class="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
+                            <button @click="updateQty(item, -1)" class="qty-btn text-gray-400 hover:text-red-500">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="w-8 text-center font-bold text-amber-900 text-xs">{{ getQty(item.name) }}</span>
+                            <button @click="updateQty(item, 1)" class="qty-btn text-amber-900 hover:bg-amber-100">
+                                <i class="fas fa-plus"></i>
+                            </button>
                         </div>
                         <button v-if="isLoggedIn" @click="removeProduct(item)" class="text-red-400 p-2"><i class="fas fa-trash-alt"></i></button>
                     </div>
@@ -196,15 +195,30 @@ Vue.createApp({
         getItemsByCat(catName) { return this.products.filter(p => p.category === catName); },
         toggleAdmin() { if(this.isLoggedIn) this.isLoggedIn = false; else this.showLogin = !this.showLogin; },
         login() { if(this.passInput === 'admin123') { this.isLoggedIn = true; this.showLogin = false; this.passInput = ''; } else alert("PIN Salah!"); },
-        setQty(prod, e) {
-            const q = parseInt(e.target.value);
-            const idx = this.cart.findIndex(c => c.name === prod.name);
-            if (q === 0) { if (idx > -1) this.cart.splice(idx, 1); }
-            else { if (idx > -1) this.cart[idx].qty = q; else this.cart.push({ ...prod, qty: q }); }
+        
+        updateQty(item, change) {
+            const idx = this.cart.findIndex(c => c.name === item.name);
+            let currentQty = idx > -1 ? this.cart[idx].qty : 0;
+            let newQty = currentQty + change;
+
+            if (newQty < 0) newQty = 0;
+            if (newQty > item.stock) {
+                alert(`Stok terbatas! Maksimal ${item.stock}`);
+                newQty = item.stock;
+            }
+
+            if (newQty === 0) {
+                if (idx > -1) this.cart.splice(idx, 1);
+            } else {
+                if (idx > -1) this.cart[idx].qty = newQty;
+                else this.cart.push({ ...item, qty: newQty });
+            }
         },
+
         getQty(name) { const item = this.cart.find(c => c.name === name); return item ? item.qty : 0; },
         addProduct() { this.products.push({ name: 'Menu Baru', price: 0, stock: 10, category: 'lain lain', unit: 'pcs' }); this.saveToFirebase(); },
         removeProduct(item) { if(confirm('Hapus menu ini?')) { this.products = this.products.filter(p => p !== item); this.saveToFirebase(); } },
+        
         terbilang(n) {
             const angka = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
             let hasil = "";
