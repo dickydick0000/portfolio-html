@@ -109,10 +109,8 @@
                         <div v-else class="space-y-2">
                             <div class="grid grid-cols-2 gap-2">
                                 <input v-model="item.name" @change="saveToFirebase" class="admin-input" placeholder="Nama Menu">
-                                <select v-model="item.category" @change="saveToFirebase" class="admin-input appearance-none bg-no-repeat">
-                                    <option v-for="cat in adminCategories" :key="cat" :value="cat">
-                                        {{ cat.toUpperCase() }}
-                                    </option>
+                                <select v-model="item.category" @change="saveToFirebase" class="admin-input">
+                                    <option v-for="cat in adminCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-2">
@@ -205,9 +203,7 @@ Vue.createApp({
         }
     },
     computed: {
-        adminCategories() {
-            return this.categories.filter(c => c !== 'semua');
-        },
+        adminCategories() { return this.categories.filter(c => c !== 'semua'); },
         displayCategories() {
             if (this.isLoggedIn) return this.adminCategories;
             return this.activeTab === 'semua' ? this.adminCategories : [this.activeTab];
@@ -230,7 +226,6 @@ Vue.createApp({
         getItemsByCat(catName) { return this.products.filter(p => p.category === catName); },
         toggleAdmin() { if(this.isLoggedIn) this.isLoggedIn = false; else this.showLogin = !this.showLogin; },
         login() { if(this.passInput === 'admin123') { this.isLoggedIn = true; this.showLogin = false; this.passInput = ''; } else alert("PIN Salah!"); },
-        
         updateQty(item, change) {
             const idx = this.cart.findIndex(c => c.name === item.name);
             let currentQty = idx > -1 ? this.cart[idx].qty : 0;
@@ -259,7 +254,6 @@ Vue.createApp({
         getQty(name) { const item = this.cart.find(c => c.name === name); return item ? item.qty : 0; },
         addProduct() { this.products.push({ name: 'Menu Baru', price: 0, stock: 10, category: 'lain lain', unit: 'pcs' }); this.saveToFirebase(); },
         removeProduct(item) { if(confirm('Hapus menu ini?')) { this.products = this.products.filter(p => p !== item); this.saveToFirebase(); } },
-        
         terbilang(n) {
             const angka = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
             let hasil = "";
@@ -275,19 +269,21 @@ Vue.createApp({
         },
         async checkout() {
             if(!this.form.name || !this.form.address) return alert("Lengkapi Nama dan Alamat!");
-            let msg = `ORDER TO CHAESA KITCHEN\n`;
+            // Menggunakan bintang (*) untuk membuat teks BOLD di WhatsApp
+            let msg = `*ORDER TO CHAESA KITCHEN*\n`;
             msg += `Nama Pemesan: ${this.form.name}\n`;
             msg += `No WA: ${this.form.phone || '-'}\n`;
             msg += `Alamat: ${this.form.address}\n`;
             msg += `Pesan/Catatan: ${this.form.note || '-'}\n`;
             msg += `------------------------------------------\n\n`;
             this.cart.forEach(i => { 
-                msg += `${i.name}\n${i.qty} ${i.unit || 'pcs'} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
+                // Menambahkan bintang (*) pada nama item
+                msg += `*${i.name}*\n${i.qty} ${i.unit || 'pcs'} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
                 const p = this.products.find(pr => pr.name === i.name);
                 if(p) p.stock -= i.qty;
             });
             msg += `------------------------------------------\n`;
-            msg += `TOTAL TAGIHAN: Rp ${this.totalPrice.toLocaleString()}\n(${this.terbilang(this.totalPrice)} Rupiah)`;
+            msg += `*TOTAL TAGIHAN: Rp ${this.totalPrice.toLocaleString()}*\n(${this.terbilang(this.totalPrice)} Rupiah)`;
             await this.saveToFirebase();
             window.open(`https://wa.me/${this.waNumber}?text=${encodeURIComponent(msg)}`);
             this.cart = []; this.showCart = false;
