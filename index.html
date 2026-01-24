@@ -165,7 +165,7 @@ Vue.createApp({
         return {
             loading: true, isLoggedIn: false, showLogin: false, showCart: false,
             passInput: '', activeTab: 'semua',
-            categories: ['semua', 'risol', 'brownies', 'nastar', 'lain lain'],
+            categories: ['semua', 'risol', 'brownies', 'lain lain'],
             products: [], cart: [],
             form: { name: '', phone: '', address: '', note: '' },
             waNumber: '6285385978915'
@@ -219,7 +219,7 @@ Vue.createApp({
         async checkout() {
             if(!this.form.name || !this.form.address) return alert("Lengkapi Nama dan Alamat!");
             
-            let msg = `ORDER TO CHAESA KITCHEN`;
+            let msg = `ORDER TO CHAESA KITCHEN\n`;
             msg += `Nama Pemesan: ${this.form.name}\n`;
             msg += `No WA: ${this.form.phone || '-'}\n`;
             msg += `Alamat: ${this.form.address}\n`;
@@ -251,4 +251,3 @@ Vue.createApp({
 </script>
 </body>
 </html>
-
