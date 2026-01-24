@@ -18,9 +18,8 @@
         .kitchen-pattern { position: absolute; inset: 0; opacity: 0.12; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6z' fill='%23fff'/%3E%3C/svg%3E"); }
         [v-cloak] { display: none; }
         .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
-        .tab-active { background: var(--brand-primary); color: white; }
+        .tab-active { background: var(--brand-primary); color: white; border-color: var(--brand-primary); }
         .admin-input { background: #fdf2f2; border: 1px solid #fed7d7; border-radius: 8px; padding: 6px; font-weight: bold; color: #78350f; width: 100%; outline: none; font-size: 12px; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -50,10 +49,10 @@
         </div>
     </header>
 
-    <nav v-if="!isLoggedIn" class="sticky top-0 bg-white/95 backdrop-blur-md z-30 px-4 py-4 border-b border-gray-100 flex gap-2 overflow-x-auto no-scrollbar">
+    <nav v-if="!isLoggedIn" class="sticky top-0 bg-white/95 backdrop-blur-md z-30 px-4 py-4 border-b border-gray-100 flex flex-wrap gap-2 justify-center">
         <button v-for="cat in categories" @click="activeTab = cat" 
-                :class="activeTab === cat ? 'tab-active shadow-lg' : 'bg-gray-50 text-gray-400'" 
-                class="px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase whitespace-nowrap transition-all">
+                :class="activeTab === cat ? 'tab-active shadow-md' : 'bg-gray-50 text-gray-500 border-transparent'" 
+                class="px-4 py-2 border rounded-full text-[10px] font-bold uppercase transition-all">
             {{ cat }}
         </button>
     </nav>
@@ -70,21 +69,24 @@
 
         <div v-for="catName in displayCategories" :key="catName" class="mb-8">
             <div class="flex items-center gap-3 mb-4">
-                <div class="h-[2px] flex-1 bg-gray-200"></div>
-                <h3 class="text-[10px] font-black text-amber-900 uppercase tracking-[0.3em]">{{ catName }}</h3>
-                <div class="h-[2px] flex-1 bg-gray-200"></div>
+                <div class="h-[1px] flex-1 bg-gray-200"></div>
+                <h3 class="text-[9px] font-black text-amber-900 uppercase tracking-widest">{{ catName }}</h3>
+                <div class="h-[1px] flex-1 bg-gray-200"></div>
             </div>
 
-            <div class="space-y-4">
-                <div v-for="(item, idx) in getItemsByCat(catName)" :key="idx" class="bg-white p-4 rounded-3xl border border-gray-100 card-shadow flex gap-4">
-                    <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center shrink-0 text-orange-600 text-xl">
+            <div class="space-y-3">
+                <div v-for="(item, idx) in getItemsByCat(catName)" :key="idx" class="bg-white p-4 rounded-2xl border border-gray-100 card-shadow flex items-center gap-4">
+                    <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center shrink-0 text-orange-600">
                         <i class="fas fa-cookie-bite"></i>
                     </div>
+                    
                     <div class="flex-1 min-w-0">
                         <div v-if="!isLoggedIn">
-                            <h4 class="font-bold text-gray-800 text-sm truncate">{{ item.name }}</h4>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">{{ item.stock }} {{ item.unit || 'pcs' }} Tersedia</p>
-                            <div class="text-amber-900 font-black text-lg">Rp {{ item.price.toLocaleString() }}</div>
+                            <h4 class="font-bold text-gray-800 text-sm leading-tight truncate">{{ item.name }}</h4>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-amber-900 font-black text-sm">Rp {{ item.price.toLocaleString() }}</span>
+                                <span class="text-[9px] font-bold text-gray-400">/ {{ item.unit || 'pcs' }}</span>
+                            </div>
                         </div>
                         <div v-else class="space-y-2">
                             <input v-model="item.name" @change="saveToFirebase" class="admin-input" placeholder="Nama Menu">
@@ -92,55 +94,59 @@
                                 <input type="number" v-model.number="item.price" @change="saveToFirebase" class="admin-input" placeholder="Harga">
                                 <input type="number" v-model.number="item.stock" @change="saveToFirebase" class="admin-input" placeholder="Stok">
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <select v-model="item.category" @change="saveToFirebase" class="admin-input bg-amber-50">
-                                    <option v-for="c in categories.filter(x => x !== 'semua')" :value="c">{{ c.toUpperCase() }}</option>
-                                </select>
-                                <input v-model="item.unit" @change="saveToFirebase" class="admin-input" placeholder="Unit (pcs/box)">
-                            </div>
                         </div>
                     </div>
-                    <div class="flex flex-col justify-center">
-                        <div v-if="!isLoggedIn && item.stock > 0">
-                            <select :value="getQty(item.name)" @change="setQty(item, $event)" class="bg-orange-50 h-10 w-16 rounded-xl font-bold text-amber-900 border border-orange-200 px-2 outline-none">
+
+                    <div class="shrink-0">
+                        <div v-if="!isLoggedIn && item.stock > 0" class="relative">
+                            <select :value="getQty(item.name)" @change="setQty(item, $event)" 
+                                    class="appearance-none bg-orange-50 h-9 w-12 rounded-lg font-bold text-amber-900 border border-orange-200 text-center text-xs outline-none cursor-pointer">
                                 <option value="0">0</option>
                                 <option v-for="n in Math.min(item.stock, 20)" :value="n">{{n}}</option>
                             </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-1 flex items-center">
+                                <i class="fas fa-chevron-down text-[8px] text-orange-400"></i>
+                            </div>
                         </div>
-                        <button v-if="isLoggedIn" @click="removeProduct(item)" class="text-red-400 p-2"><i class="fas fa-trash"></i></button>
+                        <button v-if="isLoggedIn" @click="removeProduct(item)" class="text-red-400 p-2"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <button v-if="isLoggedIn" @click="addProduct" class="w-full py-5 border-2 border-dashed border-gray-300 rounded-3xl text-gray-400 font-black text-xs uppercase">+ Tambah Menu Baru</button>
+        <button v-if="isLoggedIn" @click="addProduct" class="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-400 font-bold text-[10px] uppercase">+ Menu Baru</button>
     </main>
 
     <div v-if="cartTotal > 0 && !showCart" @click="showCart = true" class="fixed bottom-6 left-4 right-4 bg-amber-900 text-white p-2 rounded-2xl flex items-center shadow-2xl z-40 max-w-md mx-auto cursor-pointer">
-        <div class="bg-orange-500 w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0"><i class="fas fa-shopping-cart"></i></div>
-        <div class="ml-4 flex-1">
-            <p class="text-[9px] font-bold text-orange-200 uppercase">{{ cartTotal }} Item</p>
+        <div class="bg-orange-500 w-10 h-10 rounded-xl flex items-center justify-center shrink-0"><i class="fas fa-shopping-basket"></i></div>
+        <div class="ml-3 flex-1">
+            <p class="text-[8px] font-bold text-orange-200 uppercase">{{ cartTotal }} Pesanan</p>
             <p class="text-sm font-black">Rp {{ totalPrice.toLocaleString() }}</p>
         </div>
-        <div class="bg-white/10 px-6 py-3 rounded-full text-[10px] font-black uppercase">Check Out</div>
+        <div class="bg-white/10 px-4 py-2 rounded-lg text-[9px] font-black uppercase">Check Out</div>
     </div>
 
     <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
-        <div class="bg-white rounded-t-[3rem] p-8 max-w-md mx-auto w-full">
+        <div class="bg-white rounded-t-[2.5rem] p-6 max-w-md mx-auto w-full">
+            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black text-amber-900">Detail Pesanan</h2>
-                <button @click="showCart = false"><i class="fas fa-times text-gray-400 text-xl"></i></button>
+                <h2 class="text-lg font-black text-amber-900">Konfirmasi Pesanan</h2>
+                <button @click="showCart = false" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full"><i class="fas fa-times text-gray-400 text-xs"></i></button>
             </div>
             <div class="space-y-3 mb-6">
-                <input v-model="form.name" placeholder="Nama Pemesan" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none">
-                <input v-model="form.phone" placeholder="No WA" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none">
-                <input v-model="form.address" placeholder="Alamat" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none">
-                <textarea v-model="form.note" placeholder="Pesan / Catatan" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none h-20"></textarea>
+                <input v-model="form.name" placeholder="Nama Pemesan" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
+                <input v-model="form.phone" placeholder="No WhatsApp" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
+                <input v-model="form.address" placeholder="Alamat Pengiriman" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
+                <textarea v-model="form.note" placeholder="Catatan (Opsional)" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none h-20 text-sm"></textarea>
             </div>
             <div class="border-t pt-4">
-                <p class="text-[10px] font-bold text-gray-400 uppercase">Total Tagihan</p>
-                <p class="text-2xl font-black text-amber-900 mb-6">Rp {{ totalPrice.toLocaleString() }}</p>
-                <button @click="checkout" class="w-full bg-amber-900 text-white py-5 rounded-2xl font-black text-sm">PESAN SEKARANG</button>
+                <div class="flex justify-between items-end mb-4">
+                    <div>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase">Total Bayar</p>
+                        <p class="text-xl font-black text-amber-900">Rp {{ totalPrice.toLocaleString() }}</p>
+                    </div>
+                    <button @click="checkout" class="bg-amber-900 text-white px-8 py-4 rounded-xl font-black text-xs uppercase shadow-lg shadow-amber-900/20">Kirim WA</button>
+                </div>
             </div>
         </div>
     </div>
@@ -186,9 +192,7 @@ Vue.createApp({
                 this.loading = false;
             });
         },
-        async saveToFirebase() {
-            await db.ref('kitchen_data/products').set(this.products);
-        },
+        async saveToFirebase() { await db.ref('kitchen_data/products').set(this.products); },
         getItemsByCat(catName) { return this.products.filter(p => p.category === catName); },
         toggleAdmin() { if(this.isLoggedIn) this.isLoggedIn = false; else this.showLogin = !this.showLogin; },
         login() { if(this.passInput === 'admin123') { this.isLoggedIn = true; this.showLogin = false; this.passInput = ''; } else alert("PIN Salah!"); },
@@ -201,7 +205,6 @@ Vue.createApp({
         getQty(name) { const item = this.cart.find(c => c.name === name); return item ? item.qty : 0; },
         addProduct() { this.products.push({ name: 'Menu Baru', price: 0, stock: 10, category: 'lain lain', unit: 'pcs' }); this.saveToFirebase(); },
         removeProduct(item) { if(confirm('Hapus menu ini?')) { this.products = this.products.filter(p => p !== item); this.saveToFirebase(); } },
-        
         terbilang(n) {
             const angka = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
             let hasil = "";
@@ -215,30 +218,21 @@ Vue.createApp({
             else if (n < 1000000000) hasil = this.terbilang(Math.floor(n / 1000000)) + " Juta " + this.terbilang(n % 1000000);
             return hasil.trim();
         },
-
         async checkout() {
             if(!this.form.name || !this.form.address) return alert("Lengkapi Nama dan Alamat!");
-            
             let msg = `ORDER TO CHAESA KITCHEN\n`;
             msg += `Nama Pemesan: ${this.form.name}\n`;
             msg += `No WA: ${this.form.phone || '-'}\n`;
             msg += `Alamat: ${this.form.address}\n`;
             msg += `Pesan/Catatan: ${this.form.note || '-'}\n`;
             msg += `------------------------------------------\n\n`;
-            
             this.cart.forEach(i => { 
-                const sub = i.price * i.qty;
-                msg += `${i.name}\n`;
-                msg += `${i.qty} ${i.unit || 'pcs'} x Rp ${i.price.toLocaleString()}\n`;
-                msg += `Subtotal: Rp ${sub.toLocaleString()}\n\n`;
+                msg += `${i.name}\n${i.qty} ${i.unit || 'pcs'} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
                 const p = this.products.find(pr => pr.name === i.name);
                 if(p) p.stock -= i.qty;
             });
-            
             msg += `------------------------------------------\n`;
-            msg += `TOTAL TAGIHAN: Rp ${this.totalPrice.toLocaleString()}\n`;
-            msg += `(${this.terbilang(this.totalPrice)} Rupiah)`;
-            
+            msg += `TOTAL TAGIHAN: Rp ${this.totalPrice.toLocaleString()}\n(${this.terbilang(this.totalPrice)} Rupiah)`;
             await this.saveToFirebase();
             window.open(`https://wa.me/${this.waNumber}?text=${encodeURIComponent(msg)}`);
             this.cart = []; this.showCart = false;
