@@ -93,7 +93,7 @@
             <div class="space-y-3">
                 <div v-for="(item, idx) in getItemsByCat(catName)" :key="idx" class="bg-white p-4 rounded-2xl border border-gray-100 card-shadow flex items-center gap-4">
                     <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center shrink-0 text-orange-600">
-                        <i class="fas fa-cookie-bite"></i>
+                        <i :class="getCategoryIcon(item.category)"></i>
                     </div>
                     
                     <div class="flex-1 min-w-0">
@@ -253,6 +253,15 @@ Vue.createApp({
             }
         },
         getQty(name) { const item = this.cart.find(c => c.name === name); return item ? item.qty : 0; },
+        // LOGIKA IKON BERDASARKAN KATEGORI
+        getCategoryIcon(cat) {
+            const map = {
+                'risol': 'fas fa-hotdog text-xl',
+                'brownies': 'fas fa-bread-slice text-xl',
+                'lain lain': 'fas fa-cookie text-xl'
+            };
+            return map[cat.toLowerCase()] || 'fas fa-cookie-bite text-xl';
+        },
         addProduct() { 
             this.products.push({ 
                 name: 'Menu Baru', 
@@ -289,7 +298,6 @@ Vue.createApp({
                 let namaItem = i.name.toLowerCase();
                 let satuan = i.unit || 'pcs';
                 
-                // Logika satuan otomatis
                 if(namaItem.includes('brownies')) satuan = 'Box';
                 if(namaItem.includes('nastar') || namaItem.includes('kue kacang') || namaItem.includes('putri salju')) satuan = 'Toples';
 
