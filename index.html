@@ -20,7 +20,7 @@
         .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
         .tab-active { background: var(--brand-primary); color: white; }
         .admin-input { background: #fdf2f2; border: 1px solid #fed7d7; border-radius: 8px; padding: 6px; font-weight: bold; color: #78350f; width: 100%; outline: none; font-size: 12px; }
-        .category-pill { padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -85,20 +85,22 @@
                         <div v-if="!isLoggedIn">
                             <h4 class="font-bold text-gray-800 text-sm truncate">{{ item.name }}</h4>
                             <p class="text-[10px] font-bold" :class="item.stock > 0 ? 'text-green-500' : 'text-red-500'">
-                                {{ item.stock > 0 ? item.stock + ' ' + item.unit + ' Tersedia' : 'Habis' }}
+                                {{ item.stock > 0 ? item.stock + ' ' + (item.unit || 'pcs') + ' Tersedia' : 'Habis' }}
                             </p>
                             <div class="text-amber-900 font-black text-lg">Rp {{ item.price.toLocaleString() }}</div>
                         </div>
-
                         <div v-else class="space-y-2">
                             <input v-model="item.name" @change="saveToFirebase" class="admin-input" placeholder="Nama Menu">
                             <div class="grid grid-cols-2 gap-2">
                                 <input type="number" v-model.number="item.price" @change="saveToFirebase" class="admin-input" placeholder="Harga">
                                 <input type="number" v-model.number="item.stock" @change="saveToFirebase" class="admin-input" placeholder="Stok">
                             </div>
-                            <select v-model="item.category" @change="saveToFirebase" class="admin-input bg-amber-50">
-                                <option v-for="c in categories.filter(x => x !== 'semua')" :value="c">{{ c.toUpperCase() }}</option>
-                            </select>
+                            <div class="grid grid-cols-2 gap-2">
+                                <select v-model="item.category" @change="saveToFirebase" class="admin-input bg-amber-50">
+                                    <option v-for="c in categories.filter(x => x !== 'semua')" :value="c">{{ c.toUpperCase() }}</option>
+                                </select>
+                                <input v-model="item.unit" @change="saveToFirebase" class="admin-input" placeholder="Unit (pcs/box)">
+                            </div>
                         </div>
                     </div>
 
@@ -106,7 +108,7 @@
                         <div v-if="!isLoggedIn && item.stock > 0">
                             <select :value="getQty(item.name)" @change="setQty(item, $event)" class="bg-orange-50 h-10 w-16 rounded-xl font-bold text-amber-900 outline-none px-2 border border-orange-200">
                                 <option value="0">0</option>
-                                <option v-for="n in Math.min(item.stock, 10)" :value="n">{{n}}</option>
+                                <option v-for="n in Math.min(item.stock, 15)" :value="n">{{n}}</option>
                             </select>
                         </div>
                         <button v-if="isLoggedIn" @click="removeProduct(item)" class="text-red-400 w-10 h-10 rounded-full hover:bg-red-50"><i class="fas fa-trash"></i></button>
@@ -132,21 +134,19 @@
     <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
         <div class="bg-white rounded-t-[3rem] p-8 max-w-md mx-auto w-full">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black text-amber-900">Konfirmasi Pesanan</h2>
+                <h2 class="text-xl font-black text-amber-900">Detail Pesanan</h2>
                 <button @click="showCart = false" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <div class="space-y-4 mb-8">
-                <input v-model="form.name" placeholder="Nama Kamu" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none focus:ring-2 ring-amber-700">
-                <textarea v-model="form.address" placeholder="Alamat Pengiriman" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none h-24 focus:ring-2 ring-amber-700"></textarea>
+            <div class="space-y-3 mb-6">
+                <input v-model="form.name" placeholder="Nama Pemesan" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none">
+                <input v-model="form.phone" placeholder="No WA (Contoh: 0812...)" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none">
+                <input v-model="form.address" placeholder="Alamat" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none">
+                <textarea v-model="form.note" placeholder="Pesan / Catatan" class="w-full bg-gray-50 p-4 rounded-2xl border-none font-bold outline-none h-20"></textarea>
             </div>
-            <div class="border-t pt-6">
-                <div class="flex justify-between items-end mb-6">
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Total Pembayaran</p>
-                        <p class="text-2xl font-black text-amber-900">Rp {{ totalPrice.toLocaleString() }}</p>
-                    </div>
-                </div>
-                <button @click="checkout" class="w-full bg-amber-900 text-white py-5 rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-transform">KIRIM KE WHATSAPP</button>
+            <div class="border-t pt-4">
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Total Tagihan</p>
+                <p class="text-2xl font-black text-amber-900 mb-6">Rp {{ totalPrice.toLocaleString() }}</p>
+                <button @click="checkout" class="w-full bg-amber-900 text-white py-5 rounded-2xl font-black text-sm shadow-xl">KIRIM KE WHATSAPP</button>
             </div>
         </div>
     </div>
@@ -171,16 +171,14 @@ Vue.createApp({
         return {
             loading: true, isLoggedIn: false, showLogin: false, showCart: false,
             passInput: '', activeTab: 'semua',
-            categories: ['semua', 'risol', 'brownies', 'lain lain'],
+            categories: ['semua', 'risol', 'brownies', 'nastar', 'lain lain'],
             products: [], cart: [],
-            form: { name: '', address: '' },
+            form: { name: '', phone: '', address: '', note: '' },
             waNumber: '6285385978915'
         }
     },
     computed: {
         displayCategories() {
-            // Jika admin: tampilkan semua kategori yang ada isinya
-            // Jika konsumen: jika tab 'semua' tampilkan semua, jika klik kategori tertentu tampilkan kategori itu saja
             if (this.isLoggedIn) return this.categories.filter(c => c !== 'semua');
             return this.activeTab === 'semua' ? this.categories.filter(c => c !== 'semua') : [this.activeTab];
         },
@@ -201,14 +199,12 @@ Vue.createApp({
             return this.products.filter(p => p.category === catName);
         },
         toggleAdmin() { 
-            if(this.isLoggedIn) { this.isLoggedIn = false; this.activeTab = 'semua'; } 
+            if(this.isLoggedIn) this.isLoggedIn = false; 
             else this.showLogin = !this.showLogin; 
         },
         login() { 
             if(this.passInput === 'admin123') { 
-                this.isLoggedIn = true; 
-                this.showLogin = false; 
-                this.passInput = ''; 
+                this.isLoggedIn = true; this.showLogin = false; this.passInput = ''; 
             } else alert("PIN Salah!"); 
         },
         setQty(prod, e) {
@@ -219,33 +215,51 @@ Vue.createApp({
         },
         getQty(name) { const item = this.cart.find(c => c.name === name); return item ? item.qty : 0; },
         addProduct() { 
-            this.products.push({ 
-                name: 'Menu Baru', 
-                price: 0, 
-                stock: 10, 
-                category: 'lain lain', 
-                unit: 'pcs' 
-            }); 
+            this.products.push({ name: 'Menu Baru', price: 0, stock: 10, category: 'lain lain', unit: 'pcs' }); 
             this.saveToFirebase(); 
         },
         removeProduct(item) { 
-            if(confirm('Hapus ' + item.name + '?')) {
+            if(confirm('Hapus menu ini?')) {
                 this.products = this.products.filter(p => p !== item);
                 this.saveToFirebase(); 
             }
         },
+        terbilang(n) {
+            const num = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+            if (n < 12) return num[n];
+            if (n < 20) return this.terbilang(n - 10) + " Belas";
+            if (n < 100) return this.terbilang(Math.floor(n / 10)) + " Puluh " + this.terbilang(n % 10);
+            if (n < 200) return " Seratus " + this.terbilang(n - 100);
+            if (n < 1000) return this.terbilang(Math.floor(n / 100)) + " Ratus " + this.terbilang(n % 100);
+            if (n < 2000) return " Seribu " + this.terbilang(n - 1000);
+            if (n < 1000000) return this.terbilang(Math.floor(n / 1000)) + " Ribu " + this.terbilang(n % 1000);
+            if (n < 1000000000) return this.terbilang(Math.floor(n / 1000000)) + " Juta " + this.terbilang(n % 1000000);
+            return "";
+        },
         async checkout() {
-            if(!this.form.name || !this.form.address) return alert("Lengkapi nama dan alamat!");
-            let msg = `*PESANAN CHAESA KITCHEN*\n\n`;
-            msg += `👤 *Nama:* ${this.form.name}\n`;
-            msg += `📍 *Alamat:* ${this.form.address}\n\n`;
-            msg += `📦 *Detail Pesanan:*\n`;
+            if(!this.form.name || !this.form.address) return alert("Lengkapi Nama dan Alamat!");
+            
+            let msg = `> ORDER TO CHAESA KITCHEN <\n`;
+            msg += `Nama Pemesan: ${this.form.name}\n`;
+            msg += `No WA: ${this.form.phone || '-'}\n`;
+            msg += `Alamat: ${this.form.address}\n`;
+            msg += `Pesan/Catatan: ${this.form.note || '-'}\n`;
+            msg += `------------------------------------------\n\n`;
+            
             this.cart.forEach(i => { 
-                msg += `• ${i.name} (${i.qty}x) = Rp ${(i.price*i.qty).toLocaleString()}\n`;
+                const sub = i.price * i.qty;
+                msg += `${i.name}\n`;
+                msg += `${i.qty} ${i.unit || 'pcs'} x Rp ${i.price.toLocaleString()}\n`;
+                msg += `Subtotal: Rp ${sub.toLocaleString()}\n\n`;
+                
                 const p = this.products.find(pr => pr.name === i.name);
                 if(p) p.stock -= i.qty;
             });
-            msg += `\n💰 *TOTAL BAYAR: Rp ${this.totalPrice.toLocaleString()}*`;
+            
+            msg += `------------------------------------------\n`;
+            msg += `TOTAL TAGIHAN: Rp ${this.totalPrice.toLocaleString()}\n`;
+            msg += `(${this.terbilang(this.totalPrice)} Rupiah)`;
+            
             await this.saveToFirebase();
             window.open(`https://wa.me/${this.waNumber}?text=${encodeURIComponent(msg)}`);
             this.cart = []; this.showCart = false;
