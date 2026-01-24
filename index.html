@@ -20,7 +20,9 @@
         .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
         .tab-active { background: var(--brand-primary); color: white; border-color: var(--brand-primary); }
         .admin-input { background: #fdf2f2; border: 1px solid #fed7d7; border-radius: 8px; padding: 6px; font-weight: bold; color: #78350f; width: 100%; outline: none; font-size: 12px; }
-        .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 12px; transition: all 0.2s; }
+        .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 10px; transition: all 0.2s; }
+        /* Remove arrows from number input */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -102,11 +104,14 @@
 
                     <div class="shrink-0">
                         <div v-if="!isLoggedIn" class="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
-                            <button @click="updateQty(item, -1)" class="qty-btn text-gray-400 hover:text-red-500">
+                            <button @click="updateQty(item, -1)" class="qty-btn text-gray-400">
                                 <i class="fas fa-minus"></i>
                             </button>
-                            <span class="w-8 text-center font-bold text-amber-900 text-xs">{{ getQty(item.name) }}</span>
-                            <button @click="updateQty(item, 1)" class="qty-btn text-amber-900 hover:bg-amber-100" :disabled="item.stock <= 0">
+                            <input type="number" 
+                                   :value="getQty(item.name)" 
+                                   @input="manualQty(item, $event)"
+                                   class="w-10 bg-transparent text-center font-bold text-amber-900 text-xs outline-none border-none">
+                            <button @click="updateQty(item, 1)" class="qty-btn text-amber-900" :disabled="item.stock <= 0">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
@@ -202,7 +207,18 @@ Vue.createApp({
         updateQty(item, change) {
             const idx = this.cart.findIndex(c => c.name === item.name);
             let currentQty = idx > -1 ? this.cart[idx].qty : 0;
-            let newQty = currentQty + change;
+            this.setQtyFinal(item, currentQty + change);
+        },
+
+        manualQty(item, event) {
+            let val = parseInt(event.target.value);
+            if (isNaN(val)) val = 0;
+            this.setQtyFinal(item, val);
+        },
+
+        setQtyFinal(item, val) {
+            const idx = this.cart.findIndex(c => c.name === item.name);
+            let newQty = val;
 
             if (newQty < 0) newQty = 0;
             if (newQty > item.stock) {
