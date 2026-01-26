@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -336,7 +336,8 @@ Vue.createApp({
         },
         async checkout() {
             if(!this.form.name || !this.form.address) return alert("Lengkapi Nama dan Alamat!");
-            let msg = `ORDER TO CHAESA KITCHEN\n`;
+            // MENGGUNAKAN TANDA BINTANG UNTUK TEBAL PADA HEADER
+            let msg = `*ORDER TO CHAESA KITCHEN*\n`;
             msg += `Nama Pemesan: ${this.form.name}\n`;
             msg += `No WA: ${this.form.phone || '-'}\n`;
             msg += `Alamat: ${this.form.address}\n`;
@@ -348,7 +349,7 @@ Vue.createApp({
                 if(namaItem.includes('brownies')) satuan = 'Box';
                 if(namaItem.includes('nastar') || namaItem.includes('kue kacang') || namaItem.includes('putri salju')) satuan = 'Toples';
                 
-                // FORMAT TEBAL TETAP ADA, TAPI DIRAPIKAN AGAR BINTANG TIDAK TERLIHAT SEBAGAI TEKS BIASA
+                // NAMA ITEM TETAP TEBAL DENGAN CARA MERAPIAKAN PENULISAN AGAR FORMAT WHATSAPP BEKERJA
                 msg += `*${i.name.trim()}*\n${i.qty} ${satuan} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
                 
                 const p = this.products.find(pr => pr.name === i.name);
