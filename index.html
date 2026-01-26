@@ -5,94 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Chaesa Kitchen - Premium Homemade</title>
     <link rel="icon" type="image/png" href="image/logo.png">
-    
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --brand-primary: #78350f; --brand-secondary: #b45309; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f3f4f6; }
         .safe-area-top { padding-top: env(safe-area-inset-top); }
-        .meat-gradient { background: #b45309; position: relative; }
-        .kitchen-pattern { 
-            position: absolute; 
-            inset: 0; 
-            opacity: 0.1; 
-            background-image: 
-                linear-gradient(90deg, white 1px, transparent 1px),
-                linear-gradient(white 1px, transparent 1px);
-            background-size: 25px 25px;
-        }
+        .meat-gradient { background: linear-gradient(135deg, #78350f 0%, #b45309 100%); position: relative; }
+        .kitchen-pattern { position: absolute; inset: 0; opacity: 0.12; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6z' fill='%23fff'/%3E%3C/svg%3E"); }
         [v-cloak] { display: none; }
         .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
         .tab-active { background: var(--brand-primary); color: white; border-color: var(--brand-primary); }
+        .admin-input { background: #fdf2f2; border: 1px solid #fed7d7; border-radius: 8px; padding: 6px; font-weight: bold; color: #78350f; width: 100%; outline: none; font-size: 12px; }
         .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 10px; transition: all 0.2s; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .promo-banner { 
-            background: rgba(255, 255, 255, 0.15); 
-            border: 1px dashed rgba(255, 255, 255, 0.4); 
-            border-radius: 20px; 
-            padding: 8px 15px; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            backdrop-filter: blur(4px);
-            height: 48px;
-        }
+        .promo-banner { background: rgba(255, 255, 255, 0.15); border: 1px dashed rgba(255, 255, 255, 0.3); border-radius: 12px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(4px); }
         .pre-wrap { white-space: pre-wrap; }
-        .bg-whatsapp { background-color: #25D366; }
     </style>
 </head>
 <body class="bg-gray-100">
 
 <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white relative flex flex-col shadow-2xl">
     
-    <!-- HEADER SESUAI REFERENSI GAMBAR -->
-    <header class="meat-gradient px-4 pt-6 pb-10 rounded-b-[2.5rem] overflow-hidden safe-area-top relative">
+    <header class="meat-gradient px-6 pt-12 pb-8 rounded-b-[2.5rem] overflow-hidden safe-area-top relative">
         <div class="kitchen-pattern"></div>
-        
-        <!-- Tombol Admin Kunci (Kanan Atas) -->
-        <div class="absolute top-4 right-4 z-20">
-            <button @click="toggleAdmin" class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/10 shadow-lg">
-                <i class="fas" :class="isLoggedIn ? 'fa-unlock text-orange-200' : 'fa-lock text-white'"></i>
-            </button>
-        </div>
-
-        <div class="relative z-10 flex flex-col gap-5 mt-2">
-            <!-- Baris Logo & Judul (Satu Baris) -->
-            <div class="flex items-center gap-3">
-                <div class="w-[85px] h-[85px] shrink-0">
-                    <!-- Pastikan path image/logo.png tersedia di folder yang benar -->
-                    <img src="image/logo.png" class="w-full h-full object-contain" alt="Logo" onerror="this.src='https://via.placeholder.com/100/b45309/white?text=LOGO'">
+        <div class="relative z-10">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-[100px] h-[100px] shrink-0 flex items-center justify-center">
+                    <img src="image/logo.png" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/120?text=LOGO'">
                 </div>
-                <div class="flex-1">
-                    <h1 class="text-[28px] font-bold text-white leading-tight tracking-tight whitespace-nowrap">Chaesa Kitchen</h1>
-                    <p class="text-orange-200 text-[11px] font-bold uppercase tracking-[0.1em] -mt-1 opacity-90">PREMIUM HOMEMADE</p>
+                <div class="min-w-0">
+                    <h1 class="text-[26px] font-extrabold text-white leading-tight whitespace-nowrap">Chaesa Kitchen</h1>
+                    <p class="text-orange-200/90 text-[11px] uppercase font-bold tracking-widest">Premium Homemade</p>
                 </div>
             </div>
 
-            <!-- Baris Promo Sejajar WhatsApp -->
-            <div class="flex items-center gap-3">
-                <!-- Area Alamat (Kiri) -->
-                <div class="flex-1">
+            <div class="flex justify-between items-end">
+                <div class="flex-1 mr-2">
                     <div v-if="!isLoggedIn" class="promo-banner">
-                        <i class="fas fa-bullhorn text-orange-300 text-sm shrink-0"></i>
-                        <span class="text-white text-[11px] font-bold leading-tight line-clamp-2">{{ promoText || 'Perumahan Grand Nusa Indah Cluster Urena Blok U14 No.31' }}</span>
+                        <i class="fas fa-bullhorn text-orange-300 text-sm animate-pulse"></i>
+                        <span class="text-white text-[11px] font-bold leading-none">{{ promoText || 'Gratis kirim sekitar GNI' }}</span>
                     </div>
-                    <div v-else class="promo-banner">
-                        <input v-model="promoText" @change="savePromo" class="w-full bg-transparent text-white text-[11px] outline-none border-none font-bold" placeholder="Edit alamat/promo...">
+                    <div v-else class="bg-black/20 p-2 rounded-xl border border-white/10 max-w-[180px]">
+                        <input v-model="promoText" @change="savePromo" class="w-full bg-transparent text-white text-[11px] outline-none border-none p-1" placeholder="Edit promo...">
                     </div>
                 </div>
 
-                <!-- Tombol WA (Kanan) -->
-                <button @click="chatAdmin" class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/10 text-green-400 shadow-lg shrink-0">
-                    <i class="fab fa-whatsapp text-2xl"></i>
-                </button>
+                <div class="flex gap-2 shrink-0">
+                    <button @click="chatAdmin" class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/10 text-green-300 shadow-lg">
+                        <i class="fab fa-whatsapp text-xl"></i>
+                    </button>
+                    <button @click="toggleAdmin" class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/10 shadow-lg">
+                        <i class="fas" :class="isLoggedIn ? 'fa-unlock text-orange-200' : 'fa-lock text-white'"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -106,10 +76,15 @@
     </nav>
 
     <main class="flex-1 px-4 pt-4 pb-32 overflow-y-auto bg-gray-50/50">
-        <div v-if="loading" class="flex justify-center py-10">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-900"></div>
+        <div v-if="loading" class="flex flex-col items-center py-10">
+            <div class="w-8 h-8 border-4 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
         </div>
-        
+
+        <div v-if="showLogin" class="mb-6 p-6 bg-white rounded-3xl border border-orange-100 shadow-sm">
+            <input type="password" v-model="passInput" @keyup.enter="login" placeholder="Pin Admin" class="w-full p-4 rounded-2xl bg-gray-50 text-center font-bold outline-none mb-3">
+            <button @click="login" class="w-full bg-amber-900 text-white py-4 rounded-2xl font-bold">MASUK</button>
+        </div>
+
         <div v-for="catName in displayCategories" :key="catName" class="mb-8">
             <div class="flex items-center gap-3 mb-4">
                 <div class="h-[1px] flex-1 bg-gray-200"></div>
@@ -122,37 +97,88 @@
                     <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center shrink-0 text-orange-600">
                         <i :class="getCategoryIcon(item.category)"></i>
                     </div>
+                    
                     <div class="flex-1 min-w-0">
-                        <h4 class="font-bold text-gray-800 text-sm leading-tight pre-wrap">{{ item.name }}</h4>
-                        <div class="flex flex-col mt-0.5">
-                            <span class="text-amber-900 font-black text-sm">Rp {{ item.price.toLocaleString() }}</span>
-                            <span class="text-[9px] font-bold" :class="item.stock > 0 ? 'text-green-600' : 'text-red-500'">
-                                Stok: {{ item.stock }} {{ item.unit || 'pcs' }}
-                            </span>
+                        <div v-if="!isLoggedIn">
+                            <h4 class="font-bold text-gray-800 text-sm leading-tight pre-wrap">{{ item.name }}</h4>
+                            <div class="flex flex-col mt-0.5">
+                                <span class="text-amber-900 font-black text-sm">Rp {{ item.price.toLocaleString() }}</span>
+                                <span class="text-[9px] font-bold" :class="item.stock > 0 ? 'text-green-600' : 'text-red-500'">
+                                    Stok: {{ item.stock }} {{ item.unit || 'pcs' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div v-else class="space-y-2">
+                            <div class="grid grid-cols-1 gap-2">
+                                <textarea v-model="item.name" @change="saveToFirebase" class="admin-input h-12 py-2" placeholder="Nama Menu (Bisa Enter)"></textarea>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <select v-model="item.category" @change="saveToFirebase" class="admin-input">
+                                    <option v-for="cat in adminCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
+                                </select>
+                                <input v-model="item.unit" @change="saveToFirebase" class="admin-input" placeholder="Satuan">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" v-model.number="item.price" @change="saveToFirebase" class="admin-input" placeholder="Harga">
+                                <input type="number" v-model.number="item.stock" @change="saveToFirebase" class="admin-input" placeholder="Stok">
+                            </div>
                         </div>
                     </div>
+
                     <div class="shrink-0">
-                        <div class="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
-                            <button @click="updateQty(item, -1)" class="qty-btn text-gray-400"><i class="fas fa-minus"></i></button>
-                            <input type="number" :value="getQty(item.name)" readonly class="w-10 bg-transparent text-center font-bold text-amber-900 text-xs outline-none">
-                            <button @click="updateQty(item, 1)" class="qty-btn text-amber-900" :disabled="item.stock <= 0"><i class="fas fa-plus"></i></button>
+                        <div v-if="!isLoggedIn" class="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-100">
+                            <button @click="updateQty(item, -1)" class="qty-btn text-gray-400">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" 
+                                   :value="getQty(item.name)" 
+                                   @input="manualQty(item, $event)"
+                                   class="w-10 bg-transparent text-center font-bold text-amber-900 text-xs outline-none border-none">
+                            <button @click="updateQty(item, 1)" class="qty-btn text-amber-900" :disabled="item.stock <= 0">
+                                <i class="fas fa-plus"></i>
+                            </button>
                         </div>
+                        <button v-if="isLoggedIn" @click="removeProduct(item)" class="text-red-400 p-2"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 </div>
             </div>
         </div>
+
+        <button v-if="isLoggedIn" @click="addProduct" class="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-400 font-bold text-[10px] uppercase">+ Menu Baru</button>
     </main>
 
-    <!-- Bar Checkout Sesuai Referensi -->
-    <div v-if="cartTotal > 0 && !showCart" @click="showCart = true" class="fixed bottom-6 left-4 right-4 bg-amber-900 text-white p-4 rounded-[1.5rem] flex items-center shadow-2xl z-40 max-w-md mx-auto cursor-pointer border border-white/10 ring-4 ring-black/5">
-        <div class="bg-orange-500 w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-lg">
-            <i class="fas fa-shopping-basket text-xl text-white"></i>
+    <div v-if="cartTotal > 0 && !showCart" @click="showCart = true" class="fixed bottom-6 left-4 right-4 bg-amber-900 text-white p-2 rounded-2xl flex items-center shadow-2xl z-40 max-w-md mx-auto cursor-pointer">
+        <div class="bg-orange-500 w-10 h-10 rounded-xl flex items-center justify-center shrink-0"><i class="fas fa-shopping-basket"></i></div>
+        <div class="ml-3 flex-1">
+            <p class="text-[8px] font-bold text-orange-200 uppercase">{{ cartTotal }} Pesanan</p>
+            <p class="text-sm font-black">Rp {{ totalPrice.toLocaleString() }}</p>
         </div>
-        <div class="ml-4 flex-1">
-            <p class="text-[10px] font-bold text-orange-200 uppercase tracking-wider leading-none mb-1">{{ cartTotal }} PESANAN</p>
-            <p class="text-xl font-bold tracking-tight">Rp {{ totalPrice.toLocaleString() }}</p>
+        <div class="bg-white/10 px-4 py-2 rounded-lg text-[9px] font-black uppercase">Check Out</div>
+    </div>
+
+    <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
+        <div class="bg-white rounded-t-[2.5rem] p-6 max-w-md mx-auto w-full">
+            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-black text-amber-900">Konfirmasi Pesanan</h2>
+                <button @click="showCart = false" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full"><i class="fas fa-times text-gray-400 text-xs"></i></button>
+            </div>
+            <div class="space-y-3 mb-6">
+                <input v-model="form.name" placeholder="Nama Pemesan" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
+                <input v-model="form.phone" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="No WhatsApp (Angka Saja)" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
+                <input v-model="form.address" placeholder="Alamat Pengiriman" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
+                <textarea v-model="form.note" placeholder="Catatan (Opsional)" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none h-20 text-sm"></textarea>
+            </div>
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-end mb-4">
+                    <div>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase">Total Bayar</p>
+                        <p class="text-xl font-black text-amber-900">Rp {{ totalPrice.toLocaleString() }}</p>
+                    </div>
+                    <button @click="checkout" class="bg-amber-900 text-white px-8 py-4 rounded-xl font-black text-xs uppercase shadow-lg shadow-amber-900/20">Kirim WA</button>
+                </div>
+            </div>
         </div>
-        <button class="bg-white/10 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-white/20">CHECK OUT</button>
     </div>
 </div>
 
@@ -174,56 +200,123 @@ Vue.createApp({
     data() {
         return {
             loading: true, isLoggedIn: false, showLogin: false, showCart: false,
-            activeTab: 'semua',
+            passInput: '', activeTab: 'semua',
             categories: ['semua', 'risol', 'brownies', 'lain lain'],
             products: [], cart: [], promoText: '',
+            form: { name: '', phone: '', address: '', note: '' },
             waNumber: '6285385978915'
         }
     },
     computed: {
         adminCategories() { return this.categories.filter(c => c !== 'semua'); },
-        displayCategories() { return this.activeTab === 'semua' ? this.adminCategories : [this.activeTab]; },
+        displayCategories() {
+            if (this.isLoggedIn) return this.adminCategories;
+            return this.activeTab === 'semua' ? this.adminCategories : [this.activeTab];
+        },
         cartTotal() { return this.cart.reduce((s, i) => s + i.qty, 0); },
         totalPrice() { return this.cart.reduce((s, i) => s + (i.price * i.qty), 0); }
     },
     methods: {
         fetchData() {
-            db.ref('kitchen_data/products').on('value', (snap) => { 
-                this.products = snap.val() || []; 
-                this.loading = false; 
+            db.ref('kitchen_data/products').on('value', (snap) => {
+                this.products = snap.val() || [];
+                this.loading = false;
             });
-            db.ref('kitchen_data/promo').on('value', (snap) => { 
-                this.promoText = snap.val() || ''; 
+            db.ref('kitchen_data/promo').on('value', (snap) => {
+                this.promoText = snap.val() || '';
             });
         },
+        async saveToFirebase() { await db.ref('kitchen_data/products').set(this.products); },
+        async savePromo() { await db.ref('kitchen_data/promo').set(this.promoText); },
+        getItemsByCat(catName) { return this.products.filter(p => p.category === catName); },
+        toggleAdmin() { if(this.isLoggedIn) this.isLoggedIn = false; else this.showLogin = !this.showLogin; },
+        login() { if(this.passInput === 'admin123') { this.isLoggedIn = true; this.showLogin = false; this.passInput = ''; } else alert("PIN Salah!"); },
         updateQty(item, change) {
             const idx = this.cart.findIndex(c => c.name === item.name);
             let currentQty = idx > -1 ? this.cart[idx].qty : 0;
-            let newQty = currentQty + change;
+            this.setQtyFinal(item, currentQty + change);
+        },
+        manualQty(item, event) {
+            let val = parseInt(event.target.value);
+            if (isNaN(val)) val = 0;
+            this.setQtyFinal(item, val);
+        },
+        setQtyFinal(item, val) {
+            const idx = this.cart.findIndex(c => c.name === item.name);
+            let newQty = val;
             if (newQty < 0) newQty = 0;
-            if (newQty > item.stock) { return; }
-            if (newQty === 0) { 
-                if (idx > -1) this.cart.splice(idx, 1); 
-            } else { 
-                if (idx > -1) this.cart[idx].qty = newQty; 
-                else this.cart.push({ ...item, qty: newQty }); 
+            if (newQty > item.stock) {
+                alert(`Stok terbatas! Maksimal ${item.stock}`);
+                newQty = item.stock;
+            }
+            if (newQty === 0) {
+                if (idx > -1) this.cart.splice(idx, 1);
+            } else {
+                if (idx > -1) this.cart[idx].qty = newQty;
+                else this.cart.push({ ...item, qty: newQty });
             }
         },
-        getQty(name) { 
-            const item = this.cart.find(c => c.name === name); 
-            return item ? item.qty : 0; 
+        getQty(name) { const item = this.cart.find(c => c.name === name); return item ? item.qty : 0; },
+        getCategoryIcon(cat) {
+            const map = {
+                'risol': 'fas fa-hotdog text-xl',
+                'brownies': 'fas fa-bread-slice text-xl',
+                'lain lain': 'fas fa-cookie text-xl'
+            };
+            return map[cat.toLowerCase()] || 'fas fa-cookie-bite text-xl';
         },
-        getCategoryIcon(cat) { 
-            const icons = { 'risol': 'fas fa-hotdog', 'brownies': 'fas fa-birthday-cake', 'lain lain': 'fas fa-cookie-bite' };
-            return (icons[cat.toLowerCase()] || 'fas fa-utensils');
+        addProduct() { 
+            this.products.push({ 
+                name: 'Menu Baru', 
+                price: 0, 
+                stock: 10, 
+                category: 'lain lain', 
+                unit: 'pcs' 
+            }); 
+            this.saveToFirebase(); 
         },
-        getItemsByCat(catName) { return this.products.filter(p => p.category === catName); },
-        chatAdmin() { window.open(`https://wa.me/${this.waNumber}`); },
-        toggleAdmin() { 
-            const pass = prompt("Masukkan PIN Admin:");
-            if(pass === "1234") this.isLoggedIn = true;
+        removeProduct(item) { if(confirm('Hapus menu ini?')) { this.products = this.products.filter(p => p !== item); this.saveToFirebase(); } },
+        terbilang(n) {
+            const angka = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+            let hasil = "";
+            if (n < 12) hasil = angka[n];
+            else if (n < 20) hasil = this.terbilang(n - 10) + " Belas";
+            else if (n < 100) hasil = this.terbilang(Math.floor(n / 10)) + " Puluh " + this.terbilang(n % 10);
+            else if (n < 200) hasil = "Seratus " + this.terbilang(n - 100);
+            else if (n < 1000) hasil = this.terbilang(Math.floor(n / 100)) + " Ratus " + this.terbilang(n % 100);
+            else if (n < 2000) hasil = "Seribu " + this.terbilang(n - 1000);
+            else if (n < 1000000) hasil = this.terbilang(Math.floor(n / 1000)) + " Ribu " + this.terbilang(n % 1000);
+            else if (n < 1000000000) hasil = this.terbilang(Math.floor(n / 1000000)) + " Juta " + this.terbilang(n % 1000000);
+            return hasil.trim();
         },
-        savePromo() { db.ref('kitchen_data/promo').set(this.promoText); }
+        async checkout() {
+            if(!this.form.name || !this.form.address) return alert("Lengkapi Nama dan Alamat!");
+            let msg = `*ORDER TO CHAESA KITCHEN*\n`;
+            msg += `Nama Pemesan: ${this.form.name}\n`;
+            msg += `No WA: ${this.form.phone || '-'}\n`;
+            msg += `Alamat: ${this.form.address}\n`;
+            msg += `Pesan/Catatan: ${this.form.note || '-'}\n`;
+            msg += `------------------------------------------\n\n`;
+            this.cart.forEach(i => { 
+                let namaItem = i.name.toLowerCase();
+                let satuan = i.unit || 'pcs';
+                
+                if(namaItem.includes('brownies')) satuan = 'Box';
+                if(namaItem.includes('nastar') || namaItem.includes('kue kacang') || namaItem.includes('putri salju')) satuan = 'Toples';
+
+                msg += `*${i.name}*\n${i.qty} ${satuan} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
+                
+                const p = this.products.find(pr => pr.name === i.name);
+                if(p) p.stock -= i.qty;
+            });
+            msg += `------------------------------------------\n`;
+            msg += `*TOTAL TAGIHAN: Rp ${this.totalPrice.toLocaleString()}*\n(${this.terbilang(this.totalPrice)} Rupiah)`;
+            await this.saveToFirebase();
+            window.open(`https://wa.me/${this.waNumber}?text=${encodeURIComponent(msg)}`);
+            this.cart = []; this.showCart = false;
+            this.form = { name: '', phone: '', address: '', note: '' };
+        },
+        chatAdmin() { window.open(`https://wa.me/${this.waNumber}?text=Halo Chaesa Kitchen...`); }
     },
     mounted() { this.fetchData(); }
 }).mount('#app');
