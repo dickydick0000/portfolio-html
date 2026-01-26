@@ -81,11 +81,6 @@
             <div class="w-8 h-8 border-4 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
         </div>
 
-        <div v-if="showLogin" class="mb-6 p-6 bg-white rounded-3xl border border-orange-100 shadow-sm">
-            <input type="password" v-model="passInput" @keyup.enter="login" placeholder="Pin Admin" class="w-full p-4 rounded-2xl bg-gray-50 text-center font-bold outline-none mb-3">
-            <button @click="login" class="w-full bg-amber-900 text-white py-4 rounded-2xl font-bold">MASUK</button>
-        </div>
-
         <div v-for="catName in displayCategories" :key="catName" class="mb-8">
             <div class="flex items-center gap-3 mb-4">
                 <div class="h-[1px] flex-1 bg-gray-200"></div>
@@ -135,15 +130,6 @@
         <button v-if="isLoggedIn" @click="addProduct" class="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-400 font-bold text-[10px] uppercase">+ Menu Baru</button>
     </main>
 
-    <div v-if="cartTotal > 0 && !showCart" @click="showCart = true" class="fixed bottom-6 left-4 right-4 bg-amber-900 text-white p-2 rounded-2xl flex items-center shadow-2xl z-40 max-w-md mx-auto cursor-pointer">
-        <div class="bg-orange-500 w-10 h-10 rounded-xl flex items-center justify-center shrink-0"><i class="fas fa-shopping-basket"></i></div>
-        <div class="ml-3 flex-1">
-            <p class="text-[8px] font-bold text-orange-200 uppercase">{{ cartTotal }} Pesanan</p>
-            <p class="text-sm font-black">Rp {{ totalPrice.toLocaleString() }}</p>
-        </div>
-        <div class="bg-white/10 px-4 py-2 rounded-lg text-[9px] font-black uppercase">Check Out</div>
-    </div>
-
     <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
         <div class="bg-white rounded-t-[2.5rem] p-6 max-w-md mx-auto w-full max-h-[90vh] overflow-y-auto">
             <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6 shrink-0"></div>
@@ -156,28 +142,6 @@
                 <input v-model="form.phone" type="text" inputmode="numeric" placeholder="No WhatsApp" class="w-full bg-gray-50 p-4 rounded-xl font-bold outline-none text-sm border-none">
                 <input v-model="form.address" placeholder="Alamat Pengiriman" class="w-full bg-gray-50 p-4 rounded-xl font-bold outline-none text-sm border-none">
                 <textarea v-model="form.note" placeholder="Catatan (Opsional)" class="w-full bg-gray-50 p-4 rounded-xl font-bold outline-none h-20 text-sm border-none"></textarea>
-            </div>
-            <div id="struk-visual" class="struk-kertas mb-6 text-[11px] leading-relaxed">
-                <div class="text-center mb-4 border-b-2 border-dashed pb-2">
-                    <img src="image/logo.png" class="w-12 mx-auto mb-1">
-                    <h3 class="font-black text-sm uppercase">Chaesa Kitchen</h3>
-                    <p>Premium Homemade Food</p>
-                </div>
-                <div class="mb-4">
-                    <p>Nama: {{ form.name || '...' }}</p>
-                    <p>Alamat: {{ form.address || '...' }}</p>
-                    <p>Tgl: {{ new Date().toLocaleDateString('id-ID') }}</p>
-                </div>
-                <div class="border-b border-dashed mb-2 pb-2">
-                    <div v-for="i in cart" class="flex justify-between mb-1">
-                        <span class="flex-1 pr-4">{{ i.qty }}x {{ i.name }}</span>
-                        <span class="shrink-0 font-bold">Rp {{ (i.price * i.qty).toLocaleString() }}</span>
-                    </div>
-                </div>
-                <div class="flex justify-between font-black text-sm mb-4">
-                    <span>TOTAL BAYAR</span>
-                    <span>Rp {{ totalPrice.toLocaleString() }}</span>
-                </div>
             </div>
             <div class="grid grid-cols-2 gap-3 mb-4">
                 <button @click="downloadStruk" class="bg-gray-100 text-gray-600 p-4 rounded-xl font-bold text-xs uppercase flex items-center justify-center gap-2">
@@ -279,16 +243,8 @@ Vue.createApp({
             if (n < 1000) return this.terbilang(Math.floor(n / 100)) + " Ratus " + this.terbilang(n % 100);
             if (n < 2000) return "Seribu " + this.terbilang(n - 1000);
             if (n < 1000000) return this.terbilang(Math.floor(n / 1000)) + " Ribu " + this.terbilang(n % 1000);
+            if (n < 1000000000) return this.terbilang(Math.floor(n / 1000000)) + " Juta " + this.terbilang(n % 1000000);
             return n.toString();
-        },
-        downloadStruk() {
-            if(!this.form.name) return alert("Isi nama dulu!");
-            html2canvas(document.getElementById('struk-visual'), { scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `Struk-${this.form.name}.png`;
-                link.href = canvas.toDataURL();
-                link.click();
-            });
         },
         async checkout() {
             if(!this.form.name || !this.form.address) return alert("Lengkapi data!");
@@ -311,7 +267,7 @@ Vue.createApp({
 
             msg += `------------------------------------------\n`;
             msg += `TOTAL TAGIHAN: Rp ${this.totalPrice.toLocaleString()}\n`;
-            msg += `(${this.terbilang(this.totalPrice)} Ribu Rupiah)`;
+            msg += `(${this.terbilang(this.totalPrice)} Rupiah)`;
 
             await this.saveToFirebase();
             window.open(`https://wa.me/${this.waNumber}?text=${encodeURIComponent(msg)}`);
