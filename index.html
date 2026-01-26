@@ -5,63 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Chaesa Kitchen - Premium Homemade</title>
     <link rel="icon" type="image/png" href="image/logo.png">
+    
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --brand-primary: #78350f; --brand-secondary: #b45309; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f3f4f6; }
         .safe-area-top { padding-top: env(safe-area-inset-top); }
-        .meat-gradient { background: linear-gradient(135deg, #78350f 0%, #b45309 100%); position: relative; }
-        .kitchen-pattern { position: absolute; inset: 0; opacity: 0.12; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6z' fill='%23fff'/%3E%3C/svg%3E"); }
+        .meat-gradient { background: #b45309; position: relative; }
+        .kitchen-pattern { position: absolute; inset: 0; opacity: 0.1; background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 0 L15 30 M0 15 L30 15' stroke='white' stroke-width='0.5' fill='none'/%3E%3C/svg%3E"); }
         [v-cloak] { display: none; }
         .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
         .tab-active { background: var(--brand-primary); color: white; border-color: var(--brand-primary); }
         .admin-input { background: #fdf2f2; border: 1px solid #fed7d7; border-radius: 8px; padding: 6px; font-weight: bold; color: #78350f; width: 100%; outline: none; font-size: 12px; }
         .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 10px; transition: all 0.2s; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .promo-banner { background: rgba(255, 255, 255, 0.15); border: 1px dashed rgba(255, 255, 255, 0.3); border-radius: 12px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(4px); }
+        .promo-banner { background: rgba(255, 255, 255, 0.15); border: 1px dashed rgba(255, 255, 255, 0.4); border-radius: 50px; padding: 10px 20px; display: inline-flex; align-items: center; gap: 10px; backdrop-filter: blur(4px); }
         .pre-wrap { white-space: pre-wrap; }
+        .struk-kertas { background: white; padding: 20px; border-radius: 4px; color: #333; font-family: 'Courier New', Courier, monospace; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .bg-whatsapp { background-color: #25D366; }
     </style>
 </head>
 <body class="bg-gray-100">
 
 <div id="app" v-cloak class="max-w-md mx-auto min-h-screen bg-white relative flex flex-col shadow-2xl">
     
-    <header class="meat-gradient px-6 pt-12 pb-8 rounded-b-[2.5rem] overflow-hidden safe-area-top relative">
+    <header class="meat-gradient px-5 pt-10 pb-10 rounded-b-[2.5rem] overflow-hidden safe-area-top relative">
         <div class="kitchen-pattern"></div>
         <div class="relative z-10">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-[100px] h-[100px] shrink-0 flex items-center justify-center">
-                    <img src="image/logo.png" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/120?text=LOGO'">
+            <div class="flex items-center justify-between gap-2">
+                <div class="w-20 h-20 shrink-0">
+                    <img src="image/logo.png" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
                 </div>
-                <div class="min-w-0">
-                    <h1 class="text-[26px] font-extrabold text-white leading-tight whitespace-nowrap">Chaesa Kitchen</h1>
-                    <p class="text-orange-200/90 text-[11px] uppercase font-bold tracking-widest">Premium Homemade</p>
+
+                <div class="flex-1 text-left px-2">
+                    <h1 class="text-2xl font-extrabold text-white leading-tight">Chaesa Kitchen</h1>
+                    <p class="text-orange-200 text-[10px] uppercase font-bold tracking-[0.2em]">PREMIUM HOMEMADE</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <button @click="toggleAdmin" class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/20">
+                        <i class="fas" :class="isLoggedIn ? 'fa-unlock text-orange-200' : 'fa-lock text-white'"></i>
+                    </button>
+                    <button @click="chatAdmin" class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/20 text-green-300">
+                        <i class="fab fa-whatsapp text-lg"></i>
+                    </button>
                 </div>
             </div>
 
-            <div class="flex justify-between items-end">
-                <div class="flex-1 mr-2">
-                    <div v-if="!isLoggedIn" class="promo-banner">
-                        <i class="fas fa-bullhorn text-orange-300 text-sm animate-pulse"></i>
-                        <span class="text-white text-[11px] font-bold leading-none">{{ promoText || 'Gratis kirim sekitar GNI' }}</span>
-                    </div>
-                    <div v-else class="bg-black/20 p-2 rounded-xl border border-white/10 max-w-[180px]">
-                        <input v-model="promoText" @change="savePromo" class="w-full bg-transparent text-white text-[11px] outline-none border-none p-1" placeholder="Edit promo...">
-                    </div>
+            <div class="mt-8 flex justify-center">
+                <div v-if="!isLoggedIn" class="promo-banner w-full">
+                    <i class="fas fa-bullhorn text-orange-300 text-sm animate-pulse"></i>
+                    <span class="text-white text-xs font-bold truncate">{{ promoText || 'Lokasi: Perumahan Grand Nusa Indah' }}</span>
                 </div>
-
-                <div class="flex gap-2 shrink-0">
-                    <button @click="chatAdmin" class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/10 text-green-300 shadow-lg">
-                        <i class="fab fa-whatsapp text-xl"></i>
-                    </button>
-                    <button @click="toggleAdmin" class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/10 shadow-lg">
-                        <i class="fas" :class="isLoggedIn ? 'fa-unlock text-orange-200' : 'fa-lock text-white'"></i>
-                    </button>
+                <div v-else class="w-full bg-black/20 p-2 rounded-2xl border border-white/10">
+                    <input v-model="promoText" @change="savePromo" class="w-full bg-transparent text-white text-xs outline-none border-none text-center font-bold" placeholder="Edit teks promo/alamat...">
                 </div>
             </div>
         </div>
@@ -147,36 +151,66 @@
         <button v-if="isLoggedIn" @click="addProduct" class="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-400 font-bold text-[10px] uppercase">+ Menu Baru</button>
     </main>
 
-    <div v-if="cartTotal > 0 && !showCart" @click="showCart = true" class="fixed bottom-6 left-4 right-4 bg-amber-900 text-white p-2 rounded-2xl flex items-center shadow-2xl z-40 max-w-md mx-auto cursor-pointer">
-        <div class="bg-orange-500 w-10 h-10 rounded-xl flex items-center justify-center shrink-0"><i class="fas fa-shopping-basket"></i></div>
-        <div class="ml-3 flex-1">
-            <p class="text-[8px] font-bold text-orange-200 uppercase">{{ cartTotal }} Pesanan</p>
-            <p class="text-sm font-black">Rp {{ totalPrice.toLocaleString() }}</p>
+    <div v-if="cartTotal > 0 && !showCart" @click="showCart = true" class="fixed bottom-6 left-4 right-4 bg-amber-900 text-white p-3 rounded-[1.5rem] flex items-center shadow-2xl z-40 max-w-md mx-auto cursor-pointer border border-white/10">
+        <div class="bg-orange-500 w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-lg">
+            <i class="fas fa-shopping-basket text-3xl"></i>
         </div>
-        <div class="bg-white/10 px-4 py-2 rounded-lg text-[9px] font-black uppercase">Check Out</div>
+        <div class="ml-5 flex-1">
+            <p class="text-[13px] font-bold text-orange-200 uppercase tracking-wider">{{ cartTotal }} Pesanan</p>
+            <p class="text-2xl font-black">Rp {{ totalPrice.toLocaleString() }}</p>
+        </div>
+        <div class="bg-white/10 px-5 py-3 rounded-xl text-[12px] font-black uppercase tracking-tighter mr-2">Check Out</div>
     </div>
 
     <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
-        <div class="bg-white rounded-t-[2.5rem] p-6 max-w-md mx-auto w-full">
-            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
-            <div class="flex justify-between items-center mb-6">
+        <div class="bg-white rounded-t-[2.5rem] p-6 max-w-md mx-auto w-full max-h-[90vh] overflow-y-auto">
+            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6 shrink-0"></div>
+            
+            <div class="flex justify-between items-center mb-6 shrink-0">
                 <h2 class="text-lg font-black text-amber-900">Konfirmasi Pesanan</h2>
                 <button @click="showCart = false" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full"><i class="fas fa-times text-gray-400 text-xs"></i></button>
             </div>
+            
             <div class="space-y-3 mb-6">
                 <input v-model="form.name" placeholder="Nama Pemesan" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
                 <input v-model="form.phone" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="No WhatsApp (Angka Saja)" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
                 <input v-model="form.address" placeholder="Alamat Pengiriman" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
                 <textarea v-model="form.note" placeholder="Catatan (Opsional)" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none h-20 text-sm"></textarea>
             </div>
-            <div class="border-t pt-4">
-                <div class="flex justify-between items-end mb-4">
-                    <div>
-                        <p class="text-[9px] font-bold text-gray-400 uppercase">Total Bayar</p>
-                        <p class="text-xl font-black text-amber-900">Rp {{ totalPrice.toLocaleString() }}</p>
-                    </div>
-                    <button @click="checkout" class="bg-amber-900 text-white px-8 py-4 rounded-xl font-black text-xs uppercase shadow-lg shadow-amber-900/20">Kirim WA</button>
+
+            <div id="struk-visual" class="struk-kertas mb-6 text-[11px] leading-relaxed">
+                <div class="text-center mb-4 border-b-2 border-dashed pb-2">
+                    <img src="image/logo.png" class="w-12 mx-auto mb-1">
+                    <h3 class="font-black text-sm uppercase">Chaesa Kitchen</h3>
+                    <p>Premium Homemade Food</p>
                 </div>
+                <div class="mb-4">
+                    <p>Nama: {{ form.name || '...' }}</p>
+                    <p>Alamat: {{ form.address || '...' }}</p>
+                    <p>Tgl: {{ new Date().toLocaleDateString('id-ID') }}</p>
+                </div>
+                <div class="border-b border-dashed mb-2 pb-2">
+                    <div v-for="i in cart" class="flex justify-between mb-1">
+                        <span class="flex-1 pr-4">{{ i.qty }}x {{ i.name }}</span>
+                        <span class="shrink-0">Rp {{ (i.price * i.qty).toLocaleString() }}</span>
+                    </div>
+                </div>
+                <div class="flex justify-between font-black text-sm mb-4">
+                    <span>TOTAL BAYAR</span>
+                    <span>Rp {{ totalPrice.toLocaleString() }}</span>
+                </div>
+                <div class="text-center text-[9px] border-t border-dashed pt-2 italic">
+                    "Terima kasih sudah memesan di Chaesa Kitchen"
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-4 shrink-0">
+                <button @click="downloadStruk" class="bg-gray-100 text-gray-600 p-4 rounded-xl font-bold text-xs uppercase flex items-center justify-center gap-2">
+                    <i class="fas fa-image"></i> Simpan Struk
+                </button>
+                <button @click="checkout" class="bg-whatsapp text-white p-4 rounded-xl font-black text-sm uppercase shadow-lg shadow-green-900/20 flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-lg"></i> Kirim Pesanan via WA
+                </button>
             </div>
         </div>
     </div>
@@ -289,6 +323,19 @@ Vue.createApp({
             else if (n < 1000000000) hasil = this.terbilang(Math.floor(n / 1000000)) + " Juta " + this.terbilang(n % 1000000);
             return hasil.trim();
         },
+        downloadStruk() {
+            if(!this.form.name) return alert("Isi nama dulu ya!");
+            const element = document.getElementById('struk-visual');
+            html2canvas(element, { 
+                backgroundColor: "#ffffff",
+                scale: 2
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Struk-${this.form.name}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        },
         async checkout() {
             if(!this.form.name || !this.form.address) return alert("Lengkapi Nama dan Alamat!");
             let msg = `*ORDER TO CHAESA KITCHEN*\n`;
@@ -300,12 +347,9 @@ Vue.createApp({
             this.cart.forEach(i => { 
                 let namaItem = i.name.toLowerCase();
                 let satuan = i.unit || 'pcs';
-                
                 if(namaItem.includes('brownies')) satuan = 'Box';
                 if(namaItem.includes('nastar') || namaItem.includes('kue kacang') || namaItem.includes('putri salju')) satuan = 'Toples';
-
-                msg += `*${i.name}*\n${i.qty} ${satuan} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
-                
+                msg += `*${i.name.trim()}*\n${i.qty} ${satuan} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
                 const p = this.products.find(pr => pr.name === i.name);
                 if(p) p.stock -= i.qty;
             });
