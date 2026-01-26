@@ -28,7 +28,6 @@
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .promo-banner { background: rgba(255, 255, 255, 0.15); border: 1px dashed rgba(255, 255, 255, 0.3); border-radius: 12px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(4px); }
         .pre-wrap { white-space: pre-wrap; }
-        /* Style Struk Visual */
         .struk-kertas { background: white; padding: 20px; border-radius: 4px; color: #333; font-family: 'Courier New', Courier, monospace; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
     </style>
 </head>
@@ -327,7 +326,7 @@ Vue.createApp({
             const element = document.getElementById('struk-visual');
             html2canvas(element, { 
                 backgroundColor: "#ffffff",
-                scale: 2 // Agar gambar lebih tajam
+                scale: 2
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `Struk-${this.form.name}.png`;
@@ -337,7 +336,7 @@ Vue.createApp({
         },
         async checkout() {
             if(!this.form.name || !this.form.address) return alert("Lengkapi Nama dan Alamat!");
-            let msg = `*ORDER TO CHAESA KITCHEN*\n`;
+            let msg = `ORDER TO CHAESA KITCHEN\n`;
             msg += `Nama Pemesan: ${this.form.name}\n`;
             msg += `No WA: ${this.form.phone || '-'}\n`;
             msg += `Alamat: ${this.form.address}\n`;
@@ -348,7 +347,10 @@ Vue.createApp({
                 let satuan = i.unit || 'pcs';
                 if(namaItem.includes('brownies')) satuan = 'Box';
                 if(namaItem.includes('nastar') || namaItem.includes('kue kacang') || namaItem.includes('putri salju')) satuan = 'Toples';
-                msg += `*${i.name}*\n${i.qty} ${satuan} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
+                
+                // FORMAT TEBAL TETAP ADA, TAPI DIRAPIKAN AGAR BINTANG TIDAK TERLIHAT SEBAGAI TEKS BIASA
+                msg += `*${i.name.trim()}*\n${i.qty} ${satuan} x Rp ${i.price.toLocaleString()}\nSubtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
+                
                 const p = this.products.find(pr => pr.name === i.name);
                 if(p) p.stock -= i.qty;
             });
