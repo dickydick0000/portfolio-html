@@ -161,10 +161,11 @@
         <div class="bg-white/10 px-4 py-2 rounded-lg text-[9px] font-black uppercase">Check Out</div>
     </div>
 
-    <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end overflow-y-auto">
-        <div class="bg-white rounded-t-[2.5rem] p-6 max-w-md mx-auto w-full">
-            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
-            <div class="flex justify-between items-center mb-6">
+    <div v-if="showCart" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col justify-end">
+        <div class="bg-white rounded-t-[2.5rem] p-6 max-w-md mx-auto w-full max-h-[90vh] overflow-y-auto">
+            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6 shrink-0"></div>
+            
+            <div class="flex justify-between items-center mb-6 shrink-0">
                 <h2 class="text-lg font-black text-amber-900">Konfirmasi Pesanan</h2>
                 <button @click="showCart = false" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full"><i class="fas fa-times text-gray-400 text-xs"></i></button>
             </div>
@@ -189,8 +190,8 @@
                 </div>
                 <div class="border-b border-dashed mb-2 pb-2">
                     <div v-for="i in cart" class="flex justify-between mb-1">
-                        <span class="flex-1">{{ i.qty }}x {{ i.name }}</span>
-                        <span>Rp {{ (i.price * i.qty).toLocaleString() }}</span>
+                        <span class="flex-1 pr-4">{{ i.qty }}x {{ i.name }}</span>
+                        <span class="shrink-0">Rp {{ (i.price * i.qty).toLocaleString() }}</span>
                     </div>
                 </div>
                 <div class="flex justify-between font-black text-sm mb-4">
@@ -202,7 +203,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="grid grid-cols-2 gap-3 mb-4 shrink-0">
                 <button @click="downloadStruk" class="bg-gray-100 text-gray-600 p-4 rounded-xl font-bold text-xs uppercase flex items-center justify-center gap-2">
                     <i class="fas fa-image"></i> Simpan Gambar
                 </button>
@@ -324,7 +325,10 @@ Vue.createApp({
         downloadStruk() {
             if(!this.form.name) return alert("Isi nama dulu ya!");
             const element = document.getElementById('struk-visual');
-            html2canvas(element, { backgroundColor: "#f3f4f6" }).then(canvas => {
+            html2canvas(element, { 
+                backgroundColor: "#ffffff",
+                scale: 2 // Agar gambar lebih tajam
+            }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `Struk-${this.form.name}.png`;
                 link.href = canvas.toDataURL();
