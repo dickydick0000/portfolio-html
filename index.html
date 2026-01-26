@@ -18,7 +18,7 @@
         :root { --brand-primary: #78350f; --brand-secondary: #b45309; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f3f4f6; }
         .safe-area-top { padding-top: env(safe-area-inset-top); }
-        .meat-gradient { background: #8b4513; position: relative; } /* Warna coklat sesuai gambar */
+        .meat-gradient { background: #8b4513; position: relative; }
         .kitchen-pattern { position: absolute; inset: 0; opacity: 0.1; background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0v20M0 10h20' stroke='%23ffffff' stroke-width='0.5' fill='none'/%3E%3C/svg%3E"); }
         [v-cloak] { display: none; }
         .card-shadow { box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
@@ -26,8 +26,6 @@
         .admin-input { background: #fdf2f2; border: 1px solid #fed7d7; border-radius: 8px; padding: 6px; font-weight: bold; color: #78350f; width: 100%; outline: none; font-size: 12px; }
         .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 10px; transition: all 0.2s; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        /* Style Banner Alamat Sesuai Gambar */
         .address-banner { background: rgba(0, 0, 0, 0.1); border: 1.5px dashed rgba(255, 255, 255, 0.3); border-radius: 50px; padding: 8px 20px; display: flex; align-items: center; gap: 10px; flex: 1; }
         .pre-wrap { white-space: pre-wrap; }
         .struk-kertas { background: white; padding: 20px; border-radius: 4px; color: #333; font-family: 'Courier New', Courier, monospace; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
@@ -40,13 +38,11 @@
     
     <header class="meat-gradient px-4 pt-6 pb-6 rounded-b-[2rem] overflow-hidden safe-area-top relative">
         <div class="kitchen-pattern"></div>
-        
         <div class="absolute top-4 right-4 z-20">
             <button @click="toggleAdmin" class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/20">
                 <i class="fas" :class="isLoggedIn ? 'fa-unlock text-orange-200' : 'fa-lock text-white'"></i>
             </button>
         </div>
-
         <div class="relative z-10">
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-[90px] h-[90px] shrink-0">
@@ -57,7 +53,6 @@
                     <p class="text-orange-100/90 text-[11px] uppercase font-bold tracking-widest">PREMIUM HOMEMADE</p>
                 </div>
             </div>
-
             <div class="flex items-center gap-3">
                 <div class="address-banner">
                     <i class="fas fa-bullhorn text-white/70 text-sm"></i>
@@ -66,7 +61,6 @@
                     </div>
                     <input v-else v-model="promoText" @change="savePromo" class="bg-transparent text-white text-[10px] outline-none border-none w-full" placeholder="Edit alamat/promo...">
                 </div>
-
                 <button @click="chatAdmin" class="bg-whatsapp-icon shrink-0 shadow-lg border border-white/10">
                     <i class="fab fa-whatsapp text-green-400 text-2xl"></i>
                 </button>
@@ -98,7 +92,6 @@
                 <h3 class="text-[9px] font-black text-amber-900 uppercase tracking-widest">{{ catName }}</h3>
                 <div class="h-[1px] flex-1 bg-gray-200"></div>
             </div>
-
             <div class="space-y-3">
                 <div v-for="(item, idx) in getItemsByCat(catName)" :key="idx" class="bg-white p-4 rounded-2xl border border-gray-100 card-shadow flex items-center gap-4">
                     <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center shrink-0 text-orange-600">
@@ -139,7 +132,6 @@
                 </div>
             </div>
         </div>
-
         <button v-if="isLoggedIn" @click="addProduct" class="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-400 font-bold text-[10px] uppercase">+ Menu Baru</button>
     </main>
 
@@ -200,7 +192,6 @@
 </div>
 
 <script>
-// (Script Firebase & Vue sama seperti kode Anda sebelumnya, tidak ada perubahan struktur logik)
 const firebaseConfig = {
     apiKey: "AIzaSyC6-_DzKDuyUBPJxYYBSAKvzqRZgdhYwvM",
     authDomain: "chaesa-kitchen.firebaseapp.com",
@@ -279,6 +270,17 @@ Vue.createApp({
             this.saveToFirebase(); 
         },
         removeProduct(item) { if(confirm('Hapus menu ini?')) { this.products = this.products.filter(p => p !== item); this.saveToFirebase(); } },
+        terbilang(n) {
+            const angka = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+            if (n < 12) return angka[n];
+            if (n < 20) return this.terbilang(n - 10) + " Belas";
+            if (n < 100) return this.terbilang(Math.floor(n / 10)) + " Puluh " + this.terbilang(n % 10);
+            if (n < 200) return "Seratus " + this.terbilang(n - 100);
+            if (n < 1000) return this.terbilang(Math.floor(n / 100)) + " Ratus " + this.terbilang(n % 100);
+            if (n < 2000) return "Seribu " + this.terbilang(n - 1000);
+            if (n < 1000000) return this.terbilang(Math.floor(n / 1000)) + " Ribu " + this.terbilang(n % 1000);
+            return n.toString();
+        },
         downloadStruk() {
             if(!this.form.name) return alert("Isi nama dulu!");
             html2canvas(document.getElementById('struk-visual'), { scale: 2 }).then(canvas => {
@@ -290,13 +292,27 @@ Vue.createApp({
         },
         async checkout() {
             if(!this.form.name || !this.form.address) return alert("Lengkapi data!");
-            let msg = `*ORDER TO CHAESA KITCHEN*\nNama: ${this.form.name}\nAlamat: ${this.form.address}\nNote: ${this.form.note || '-'}\n----------\n`;
+            
+            let msg = `ORDER TO CHAESA KITCHEN\n`;
+            msg += `Nama Pemesan: ${this.form.name}\n`;
+            msg += `No WA: ${this.form.phone || '-'}\n`;
+            msg += `Alamat: ${this.form.address}\n`;
+            msg += `Pesan/Catatan: ${this.form.note || '-'}\n`;
+            msg += `------------------------------------------\n\n`;
+
             this.cart.forEach(i => { 
-                msg += `• ${i.name} (${i.qty} ${i.unit}) - Rp ${(i.price*i.qty).toLocaleString()}\n`;
+                msg += `${i.name}\n`;
+                msg += `${i.qty} ${i.unit || 'Box'} x Rp ${i.price.toLocaleString()}\n`;
+                msg += `Subtotal: Rp ${(i.price * i.qty).toLocaleString()}\n\n`;
+                
                 const p = this.products.find(pr => pr.name === i.name);
                 if(p) p.stock -= i.qty;
             });
-            msg += `----------\n*TOTAL: Rp ${this.totalPrice.toLocaleString()}*`;
+
+            msg += `------------------------------------------\n`;
+            msg += `TOTAL TAGIHAN: Rp ${this.totalPrice.toLocaleString()}\n`;
+            msg += `(${this.terbilang(this.totalPrice)} Ribu Rupiah)`;
+
             await this.saveToFirebase();
             window.open(`https://wa.me/${this.waNumber}?text=${encodeURIComponent(msg)}`);
             this.cart = []; this.showCart = false;
