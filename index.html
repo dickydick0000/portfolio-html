@@ -24,6 +24,7 @@
         .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 10px; transition: all 0.2s; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .promo-banner { background: rgba(255, 255, 255, 0.15); border: 1px dashed rgba(255, 255, 255, 0.3); border-radius: 12px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(4px); }
+        .pre-wrap { white-space: pre-wrap; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -99,7 +100,7 @@
                     
                     <div class="flex-1 min-w-0">
                         <div v-if="!isLoggedIn">
-                            <h4 class="font-bold text-gray-800 text-sm leading-tight truncate">{{ item.name }}</h4>
+                            <h4 class="font-bold text-gray-800 text-sm leading-tight pre-wrap">{{ item.name }}</h4>
                             <div class="flex flex-col mt-0.5">
                                 <span class="text-amber-900 font-black text-sm">Rp {{ item.price.toLocaleString() }}</span>
                                 <span class="text-[9px] font-bold" :class="item.stock > 0 ? 'text-green-600' : 'text-red-500'">
@@ -108,16 +109,18 @@
                             </div>
                         </div>
                         <div v-else class="space-y-2">
+                            <div class="grid grid-cols-1 gap-2">
+                                <textarea v-model="item.name" @change="saveToFirebase" class="admin-input h-12 py-2" placeholder="Nama Menu (Bisa Enter)"></textarea>
+                            </div>
                             <div class="grid grid-cols-2 gap-2">
-                                <input v-model="item.name" @change="saveToFirebase" class="admin-input" placeholder="Nama Menu">
                                 <select v-model="item.category" @change="saveToFirebase" class="admin-input">
                                     <option v-for="cat in adminCategories" :key="cat" :value="cat">{{ cat.toUpperCase() }}</option>
                                 </select>
+                                <input v-model="item.unit" @change="saveToFirebase" class="admin-input" placeholder="Satuan">
                             </div>
-                            <div class="grid grid-cols-3 gap-2">
+                            <div class="grid grid-cols-2 gap-2">
                                 <input type="number" v-model.number="item.price" @change="saveToFirebase" class="admin-input" placeholder="Harga">
                                 <input type="number" v-model.number="item.stock" @change="saveToFirebase" class="admin-input" placeholder="Stok">
-                                <input v-model="item.unit" @change="saveToFirebase" class="admin-input" placeholder="Satuan">
                             </div>
                         </div>
                     </div>
@@ -162,7 +165,7 @@
             </div>
             <div class="space-y-3 mb-6">
                 <input v-model="form.name" placeholder="Nama Pemesan" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
-                <input v-model="form.phone" placeholder="No WhatsApp" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
+                <input v-model="form.phone" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="No WhatsApp (Angka Saja)" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
                 <input v-model="form.address" placeholder="Alamat Pengiriman" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none text-sm">
                 <textarea v-model="form.note" placeholder="Catatan (Opsional)" class="w-full bg-gray-50 p-4 rounded-xl border-none font-bold outline-none h-20 text-sm"></textarea>
             </div>
@@ -254,7 +257,6 @@ Vue.createApp({
             }
         },
         getQty(name) { const item = this.cart.find(c => c.name === name); return item ? item.qty : 0; },
-        // LOGIKA IKON BERDASARKAN KATEGORI
         getCategoryIcon(cat) {
             const map = {
                 'risol': 'fas fa-hotdog text-xl',
@@ -321,4 +323,3 @@ Vue.createApp({
 </script>
 </body>
 </html>
-
